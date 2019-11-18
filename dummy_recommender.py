@@ -72,9 +72,11 @@ if len(argv)==2:
     if argv[1]== "save":
         output = sim.cosine(m_test_csr, m_train_csr.T, k=10)
         save_npz(f'similarity_cosine_{time.time()}.npz', output.tocsr())
-        out_csr = output.tocsr()
+        sim = output.tocsr()
     elif argv[1] == "load":
-        out_csr = load_npz('similarity_cosine.npz')
+        sim = load_npz('similarity_cosine.npz')
+    """
+    this part only takes the argmax, ie only the top1
     sub = df_test[['record_id','name']]
     new_col = []
     for i in tqdm(range(out_csr.shape[0])):
@@ -83,6 +85,14 @@ if len(argv)==2:
     sub = sub.rename(columns={"record_id":"queried_record_id"})
     sub = sub[['queried_record_id','predicted_record_id']]
     sub.to_csv('sub_dummy.csv', index=False)
+    """
+    r_nnz = sim.nonzero()[0]
+    c_nnz = sim.nonzero()[1]
+
+    l = []
+    for i in tqdm(range(len(r_nnz))):
+        l.append([sim[r_nnz[i], c_nnz[i]],r_nnz[i],c_nnz[i]])
+    print("finisci di copiare da name_letters_matrix...")
 else:
     print("Usage:")
     print("python dummy_recommender.py save ---> to recompute the similarity")
