@@ -13,13 +13,13 @@ For each linked_id, computes:
 df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
 df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
 df_train.phone = df_train.phone.astype(str)
-# checks if the email is missing, in that case adds 1 to the dict for the linked_id
+# checks if the phone is missing, in that case adds 1 to the dict for the linked_id
 null_phone = {}
 null_phone = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(df_train.linked_id.tolist()))]))
 for ind,lid,phone in tqdm(zip(df_train.index, df_train.linked_id, df_train.phone)):
     if phone == 'nan':
         null_phone[lid]+=1
-# compute the popularity to extract the percentage of non null emails
+# compute the popularity to extract the percentage of non null phones
 pop = {}
 pop = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(df_train.linked_id.tolist()))]))
 for ind,lid in tqdm(zip(df_train.index, df_train.linked_id)):

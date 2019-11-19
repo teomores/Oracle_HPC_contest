@@ -15,6 +15,8 @@ df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
 full = df_train.name.append(df_test.name).reset_index(drop=True)
 full = [str(x).lower() for x in full]
 names = dict(zip(list(set(full)), [0 for x in range(len(full))]))
+for name in tqdm(full):
+    names[name]+=1
 # feature creation
 feature = pd.DataFrame()
 feature['name'] = names.keys()
@@ -23,6 +25,7 @@ feature['name_popularity'] = names.values()
 df_test.name = df_test.name.astype(str)
 df_test.name = df_test.name.str.lower()
 final_feature = df_test[['record_id', 'name']]
-final_feature = pd.merge(final_feature, feature, how='left', on=['name'])
+final_feature = pd.merge(final_feature, feature, how='left', on=['name']).fillna(0)
+final_feature = final_feature[['record_id','name_popularity']]
 print(final_feature)
 # final_feature.to_csv('name_popularity.csv', index=False)
