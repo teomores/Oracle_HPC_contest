@@ -5,6 +5,7 @@ from tqdm import tqdm
 This feature computes the number of times that a linked_id appears in the
 training set.
 """
+
 df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
 # costruisco un dizionario con chiavi i linked_id e valori tutti zeri
 # poi ci sommo 1 ogni volta che compare il linked_id
@@ -17,4 +18,4 @@ feature = pd.DataFrame()
 feature['linked_id'] = pop.keys()
 feature['popularity'] = pop.values()
 print(feature)
-# feature.to_csv('popularity.csv', index = False)
+# feature.to_csv('linked_id_popularity.csv', index = False)
