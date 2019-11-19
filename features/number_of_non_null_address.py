@@ -3,6 +3,13 @@ from scipy import *
 from scipy.sparse import *
 from tqdm.auto import tqdm
 
+"""
+For each linked_id, computes:
+- the number of null fields
+- the percentage of non-nulls over the number of times that the
+    linked_id appears
+"""
+
 df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
 df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
 df_train.address = df_train.address.astype(str)
