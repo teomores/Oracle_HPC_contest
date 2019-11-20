@@ -20,14 +20,14 @@ def number_of_non_null_phone(isValidation):
     df_train.phone = df_train.phone.astype(str)
     # checks if the phone is missing, in that case adds 1 to the dict for the linked_id
     null_phone = {}
-    null_phone = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(df_train.linked_id.tolist()))]))
-    for ind,lid,phone in tqdm(zip(df_train.index, df_train.linked_id, df_train.phone)):
+    null_phone = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(list(set(df_train.linked_id.tolist()))))]))
+    for lid,phone in tqdm(zip(df_train.linked_id, df_train.phone)):
         if phone == 'nan':
             null_phone[lid]+=1
     # compute the popularity to extract the percentage of non null phones
     pop = {}
-    pop = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(df_train.linked_id.tolist()))]))
-    for ind,lid in tqdm(zip(df_train.index, df_train.linked_id)):
+    pop = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(list(set(df_train.linked_id.tolist()))))]))
+    for lid in tqdm(zip(df_train.linked_id)):
         pop[lid] +=1
     # create the feature dataframe
     feature = pd.DataFrame()

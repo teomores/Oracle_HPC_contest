@@ -20,7 +20,7 @@ def phone_popularity(isValidation):
     # concat dataframes to compute the overall popularity
     full = df_train.phone.append(df_test.phone).reset_index(drop=True)
     full = [str(x).lower() for x in full if str(x)!="nan"]
-    phones = dict(zip(list(set(full)), [0 for x in range(len(full))]))
+    phones = dict(zip(list(set(full)), [0 for x in range(len(list(set(full))))]))
     for phone in tqdm(full):
         phones[phone]+=1
     # feature creation

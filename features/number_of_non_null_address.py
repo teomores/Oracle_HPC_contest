@@ -20,14 +20,14 @@ def number_of_non_null_address(isValidation):
     df_train.address = df_train.address.astype(str)
     # checks if the email is missing, in that case adds 1 to the dict for the linked_id
     null_address = {}
-    null_address = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(df_train.linked_id.tolist()))]))
-    for ind,lid,address in tqdm(zip(df_train.index, df_train.linked_id, df_train.address)):
+    null_address = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(list(set(df_train.linked_id.tolist()))))]))
+    for lid,address in tqdm(zip(df_train.linked_id, df_train.address)):
         if address == 'nan':
             null_address[lid]+=1
     # compute the popularity to extract the percentage of non null emails
     pop = {}
-    pop = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(df_train.linked_id.tolist()))]))
-    for ind,lid in tqdm(zip(df_train.index, df_train.linked_id)):
+    pop = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(list(set(df_train.linked_id.tolist()))))]))
+    for lid in tqdm(zip(df_train.linked_id)):
         pop[lid] +=1
     # create the feature dataframe
     feature = pd.DataFrame()

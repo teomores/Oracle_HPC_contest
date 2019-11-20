@@ -20,7 +20,7 @@ def name_popularity(isValidation):
     # concat dataframes to compute the overall popularity
     full = df_train.name.append(df_test.name).reset_index(drop=True)
     full = [str(x).lower() for x in full]
-    names = dict(zip(list(set(full)), [0 for x in range(len(full))]))
+    names = dict(zip(list(set(full)), [0 for x in range(len(list(set(full))))]))
     for name in tqdm(full):
         names[name]+=1
     # feature creation

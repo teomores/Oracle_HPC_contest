@@ -19,7 +19,7 @@ def email_popularity(isValidation):
     # concat dataframes to compute the overall popularity
     full = df_train.email.append(df_test.email).reset_index(drop=True)
     full = [str(x).lower() for x in full if str(x)!="nan"]
-    emails = dict(zip(list(set(full)), [0 for x in range(len(full))]))
+    emails = dict(zip(list(set(full)), [0 for x in range(len(list(set(full))))]))
     for email in tqdm(full):
         emails[email]+=1
     # feature creation
