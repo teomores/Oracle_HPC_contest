@@ -5,6 +5,7 @@ from scipy.sparse import *
 from tqdm import tqdm
 import string
 import unidecode
+from sklearn.feature_extraction.text import TfidfTransformer
 
 def create_name_letters_matrix(df):
     df = df[['record_id','name']]
@@ -42,6 +43,9 @@ m_train = create_name_letters_matrix(df_train)
 m_test = create_name_letters_matrix(df_test)
 m_train_csr = csr_matrix(m_train.drop(['record_id','name'], axis=1))
 m_test_csr = csr_matrix(m_test.drop(['record_id','name'], axis=1))
+# normalizzo
+m_train_csr = TfidfTransformer().fit_transform(m_train_csr)
+m_test_csr = TfidfTransformer().fit_transform(m_test_csr)
 # compute similarity
-output = sim.cosine(m_test_csr, m_train_csr.T, k=100)
-save_npz('similarity_cosine_complete.npz', output.tocsr())
+output = sim.cosine(m_test_csr, m_train_csr.T, k=300)
+save_npz('cos_name_300_tfidf.npz', output.tocsr())

@@ -44,5 +44,5 @@ m_test = create_email_letters_matrix(df_test)
 m_train_csr = csr_matrix(m_train.drop(['record_id','email'], axis=1))
 m_test_csr = csr_matrix(m_test.drop(['record_id','email'], axis=1))
 # compute similarity
-output = sim.cosine(m_test_csr, m_train_csr.T, k=100)
-save_npz('similarity_cosine_complete_email.npz', output.tocsr())
+output = sim.cosine(m_test_csr, m_train_csr.T, k=300)
+save_npz('similarity_cosine_complete_email_300.npz', output.tocsr())
