@@ -1,4 +1,4 @@
-from tqmd import tqdm
+from tqdm import tqdm
 from scipy import *
 from scipy.sparse import *
 import pandas as pd
@@ -35,7 +35,7 @@ def get_sub(sim, df_train, df_test, sub_name='mimmo'):
         tmp = []
         for l in x:
             if len(tmp)<num_diff_lin_id:
-                ind = ddd[l]
+                ind = dict_index_linked_id[l]
                 if ind not in tmp:
                     tmp.append(ind)
             else:
@@ -52,6 +52,6 @@ def get_sub(sim, df_train, df_test, sub_name='mimmo'):
         strings.append(' '.join([str(x) for x in t]))
     sub['predicted_record_id'] = strings
     print(f"Writing to {sub_name}.csv...")
-    #sub.to_csv(f'{sub_name}.csv', index=False)
+    sub.to_csv(f'{sub_name}.csv', index=False)
     print('DONE!')
     return sub
