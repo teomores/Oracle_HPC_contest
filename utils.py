@@ -55,3 +55,146 @@ def get_sub(sim, df_train, df_test, sub_name='mimmo'):
     sub.to_csv(f'{sub_name}.csv', index=False)
     print('DONE!')
     return sub
+
+
+def precision_at_k(resultTable: pd.DataFrame, trainingData: pd.DataFrame, testingData: pd.DataFrame) -> dict:
+    """
+
+    :param resultTable: columns: queried_record_id, predicted_record_id. Predicted_record_id is a list of the predicted record_id
+                        (not predicted linked_id)
+    :param trainingData: DO NOT set record_id as index
+    :param testingData: DO NOT set record_id as index
+    :return:
+    """
+
+    """
+    Given a list of K predictions for each query, first retrieve the correct ID from the test data,
+    then look in the training data the percentage of records that are actually relevant;
+
+    For example, given query "1234-M", first retrieve the correct ID "1234" from the test data,
+    then obtain from the training data all records that refer to "1234", 
+    and finally look how many of the records we have found are actually referring to "1234"
+    """
+    groupedTrainingRecords = trainingData.groupby("linked_id").apply(lambda x: list(x['record_id']))
+    groupedTrainingRecords = groupedTrainingRecords.reset_index().rename(columns={0: 'record_id'})
+
+    resultTable = resultTable.sort_values(by='queried_record_id')
+    testingData = testingData.sort_values(by='record_id')
+
+    if resultTable.shape[0] != testingData.shape[0]:
+        missing = set(testingData.record_id) - set(resultTable.queried_record_id)
+        print(f'Missing some predictions: {missing}')
+        return
+
+    totalPrecision = 0.0
+    numberOfPredictionsForRelevantRecords = 0
+
+    allRecords = dict()
+
+    resultTable['linked_id'] = testingData.linked_id.values
+    resultTable = resultTable.merge(groupedTrainingRecords, how='left', left_on='linked_id', right_on='linked_id')
+    #print(f"\ttime elapsed: {(time.time() - start):.2f} s")
+
+    for (queriedRecordID, PredictedRecords, allRelevantRecords) in tqdm(
+            zip(resultTable.queried_record_id, resultTable.predicted_record_id, resultTable.record_id)):
+
+        try:
+            selectedRelevantRecords = set(PredictedRecords) & set(allRelevantRecords)
+        except:
+            selectedRelevantRecords = set()
+            allRelevantRecords = set()
+        precision = 1
+        if (len(allRelevantRecords) > 0):
+            precision = len(selectedRelevantRecords) / len(PredictedRecords)
+            numberOfPredictionsForRelevantRecords += len(PredictedRecords)
+
+        totalPrecision += precision
+        allRecords[queriedRecordID] = [queriedRecordID, precision, len(selectedRelevantRecords),
+                                       len(allRelevantRecords)]
+
+    # Store the results in a summary table;
+    result_table = pd.DataFrame.from_dict(
+        allRecords,
+        orient='index',
+        columns=["QueriedRecordID", "Precision@K", "SelectedRecords", "AllRelevantRecords"]
+    )
+    # Compute the filtered recall, which considers only queries with at least one relevant record in the training data;
+    queries_with_relevant_records = result_table[result_table["AllRelevantRecords"] > 0]
+    filtered_precision = np.mean(
+        queries_with_relevant_records["SelectedRecords"] / numberOfPredictionsForRelevantRecords)
+
+    return {
+        "AveragePrecision": totalPrecision / resultTable.shape[0],
+        "AverageFilteredPrecision": filtered_precision,
+        "perQueryResult": result_table
+    }
+
+
+def recall_at_k(resultTable: pd.DataFrame, trainingData: pd.DataFrame, testingData: pd.DataFrame) -> dict:
+    """
+
+    :param resultTable: columns: queried_record_id, predicted_record_id. Predicted_record_id is a list of the predicted record_id
+                        (not predicted linked_id)
+    :param trainingData: DO NOT set record_id as index
+    :param testingData: DO NOT set record_id as index
+    :return:
+    """
+    """
+    Given a list of K predictions for each query, first retrieve the correct ID from the test data,
+    then look in the training data the percentage of records that have been successfully identified.
+
+    For example, given query "1234-M", first retrieve the correct ID "1234" from the test data,
+    then obtain from the training data all records that refer to "1234",
+    and finally look how many of them we have found;
+    """
+
+    groupedTrainingRecords = trainingData.groupby("linked_id").apply(lambda x: list(x['record_id']))
+    groupedTrainingRecords = groupedTrainingRecords.reset_index().rename(columns={0: 'record_id'})
+
+    resultTable = resultTable.sort_values(by='queried_record_id')
+    testingData = testingData.sort_values(by='record_id')
+
+    if resultTable.shape[0] != testingData.shape[0]:
+        missing = set(testingData.record_id) - set(resultTable.queried_record_id)
+        print(f'Missing some predictions: {missing}')
+        return
+
+    totalRecall = 0.0
+
+    allRecords = dict()
+
+    resultTable['linked_id'] = testingData.linked_id.values
+    resultTable = resultTable.merge(groupedTrainingRecords, how='left', left_on='linked_id', right_on='linked_id')
+    # print(f"\ttime elapsed: {(time.time() - start):.2f} s")
+
+    for (queriedRecordID, PredictedRecords, allRelevantRecords) in tqdm(
+            zip(resultTable.queried_record_id, resultTable.predicted_record_id, resultTable.record_id)):
+
+        try:
+            selectedRelevantRecords = set(PredictedRecords) & set(allRelevantRecords)
+        except:
+            selectedRelevantRecords = set()
+            allRelevantRecords = set()
+        recall = 1
+        if (len(allRelevantRecords) > 0):
+            recall = len(selectedRelevantRecords) / len(allRelevantRecords)
+
+        totalRecall += recall
+        allRecords[queriedRecordID] = [queriedRecordID, recall, len(selectedRelevantRecords), len(allRelevantRecords)]
+
+    # Store the results in a summary table;
+    result_table = pd.DataFrame.from_dict(
+        allRecords,
+        orient='index',
+        columns=["QueriedRecordID", "Recall@K", "SelectedRecords", "AllRelevantRecords"]
+    )
+    # Compute the filtered recall, which considers only queries with at least one relevant record in the training data;
+    queries_with_relevant_records = result_table[result_table["AllRelevantRecords"] > 0]
+    filtered_recall = np.mean(
+        queries_with_relevant_records["SelectedRecords"] / queries_with_relevant_records["AllRelevantRecords"])
+
+    return {
+        "AverageRecall": totalRecall / resultTable.shape[0],
+        "AverageFilteredRecall": filtered_recall,
+        "perQueryResult": result_table
+    }
