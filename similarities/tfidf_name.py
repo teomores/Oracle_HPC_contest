@@ -5,6 +5,7 @@ from scipy.sparse import *
 from tqdm import tqdm
 import numpy as np
 
+import argparse
 import re
 import string as string_lib
 from collections import Counter
@@ -27,9 +28,17 @@ def ngrams(string, n=2):
     ngrams = zip(*[string[i:] for i in range(n)])
     return [''.join(ngram) for ngram in ngrams]
 
+#setup parser
+parser = argparse.ArgumentParser()
+parser.add_argument("-s","--split",
+                    help="The dataset split to use",
+                    choices=['original','validation'],
+                    type=str,
+                    required=True)
+args = parser.parse_args()
 # first load the data
-df_train = pd.read_csv("../dataset/original/train.csv", escapechar="\\")
-df_test = pd.read_csv("../dataset/original/test.csv", escapechar="\\")
+df_train = pd.read_csv(f"../dataset/{args.split}/train.csv", escapechar="\\")
+df_test = pd.read_csv(f"../dataset/{args.split}/test.csv", escapechar="\\")
 # ALWAYS sort the data by record_id
 df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
 df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
@@ -41,7 +50,7 @@ all_names = list(df_train.name) + list(df_test.name)
 vectorizer = TfidfVectorizer(min_df=1, analyzer=ngrams)
 tf_idf_matrix = vectorizer.fit_transform(all_names)
 # split
-tf_idf_train = tf_idf_matrix[:691440,:] # 691440 è la lunghezza del train
-tf_idf_test = tf_idf_matrix[691440:,:]
-cos_tfidf = sim.jaccard(tf_idf_test, tf_idf_train.T, k=500)
-save_npz('jaccard_tfidf_3ngrams_500k.npz', cos_tfidf.tocsr())
+tf_idf_train = tf_idf_matrix[:df_train.shape[0],:] # 691440 è la lunghezza del train
+tf_idf_test = tf_idf_matrix[df_train.shape[0]:,:]
+cos_tfidf = sim.jaccard(tf_idf_test, tf_idf_train.T, k=300)
+save_npz(f'jaccard_tfidf_name_{args.split}.npz', cos_tfidf.tocsr())

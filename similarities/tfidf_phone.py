@@ -11,6 +11,7 @@ from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 import sys
+import argparse
 sys.path.append("..")
 from utils import convert_phones
 
@@ -32,9 +33,17 @@ def ngrams(string, n=3):
     ngrams = zip(*[string[i:] for i in range(n)])
     return [''.join(ngram) for ngram in ngrams]
 
+#setup parser
+parser = argparse.ArgumentParser()
+parser.add_argument("-s","--split",
+                    help="The dataset split to use",
+                    choices=['original','validation'],
+                    type=str,
+                    required=True)
+args = parser.parse_args()
 # first load the data
-df_train = pd.read_csv("../dataset/original/train.csv", escapechar="\\")
-df_test = pd.read_csv("../dataset/original/test.csv", escapechar="\\")
+df_train = pd.read_csv(f"../dataset/{args.split}/train.csv", escapechar="\\")
+df_test = pd.read_csv(f"../dataset/{args.split}/test.csv", escapechar="\\")
 # ALWAYS sort the data by record_id
 df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
 df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
@@ -47,7 +56,7 @@ all_phones = list(df_train.phone) + list(df_test.phone)
 vectorizer = TfidfVectorizer(min_df=1, analyzer=ngrams)
 tf_idf_matrix = vectorizer.fit_transform(all_phones)
 # split
-tf_idf_train = tf_idf_matrix[:691440,:] # 691440 è la lunghezza del train
-tf_idf_test = tf_idf_matrix[691440:,:]
-jac = sim.jaccard(tf_idf_test, tf_idf_train.T, k=500)
-save_npz('jaccard_tfidf_phone_500k.npz', jac.tocsr())
+tf_idf_train = tf_idf_matrix[:df_train.shape[0],:] # 691440 è la lunghezza del train
+tf_idf_test = tf_idf_matrix[df_train.shape[0]:,:]
+jac = sim.jaccard(tf_idf_test, tf_idf_train.T, k=300)
+save_npz(f'jaccard_tfidf_phone_{args.split}.npz', jac.tocsr())
