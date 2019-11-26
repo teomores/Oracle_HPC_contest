@@ -9,17 +9,17 @@ from features.compute_editdistance import compute_editdistance
 from features.target import target
 
 
-def base_expanded_df(alpha = 0.3, beta = 0.2, k = 20, isValidation=False, save=False):
+def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=False):
     if isValidation:
-        sim_name = load_npz('similarity_cosine_complete_name_X_val.npz')
-        sim_email = load_npz('similarity_cosine_complete_email_X_val.npz')
-        sim_phone = load_npz('similarity_cosine_complete_phone_X_val.npz')
+        sim_name = load_npz('jaccard_tfidf_name_validation.npz')
+        sim_email = load_npz('jaccard_tfidf_email_validation.npz')
+        sim_phone = load_npz('jaccard_tfidf_phone_validation.npz')
         df_train = pd.read_csv('dataset/validation/train.csv', escapechar="\\")
         df_test = pd.read_csv('dataset/validation/test.csv', escapechar="\\")
     else:
-        sim_name = load_npz('similarity_cosine_complete_name.npz')
-        sim_email = load_npz('similarity_cosine_complete_email.npz')
-        sim_phone = load_npz('similarity_cosine_complete_phone.npz')
+        sim_name = load_npz('jaccard_tfidf_name_original.npz')
+        sim_email = load_npz('jaccard_tfidf_email_original.npz')
+        sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
         df_train = pd.read_csv('dataset/original/train.csv', escapechar="\\")
         df_test = pd.read_csv('dataset/original/test.csv', escapechar="\\")
 
@@ -49,7 +49,7 @@ def base_expanded_df(alpha = 0.3, beta = 0.2, k = 20, isValidation=False, save=F
         linid_name_cosine.append(np.sort(sim_name[x].data)[::-1][:k])
         linid_email_cosine.append(np.sort(sim_email[x].data)[::-1][:k])
         linid_phone_cosine.append(np.sort(sim_phone[x].data)[::-1][:k])
-    
+
     """
 
     linid_score = []
@@ -64,7 +64,7 @@ def base_expanded_df(alpha = 0.3, beta = 0.2, k = 20, isValidation=False, save=F
 
     linked_id_list = []
     relevant_idx = []
-    num_diff_lin_id = 10
+    num_diff_lin_id = 30
     # use indices wrt to loc, much more faster
     # avoid drop_duplicates, simply check whether the linked_id is already in the list
     dict_index_linked_id = dict(zip(df_train.index, df_train.linked_id))
@@ -105,9 +105,9 @@ def base_expanded_df(alpha = 0.3, beta = 0.2, k = 20, isValidation=False, save=F
 
     if save:
         if isValidation:
-            df_new.to_csv("dataset/expandend/base_expanded_train.csv", index=False)
+            df_new.to_csv("dataset/expanded/base_expanded_train.csv", index=False)
         else:
-            df_new.to_csv("dataset/expandend/base_expanded_test.csv", index=False)
+            df_new.to_csv("dataset/expanded/base_expanded_test.csv", index=False)
 
     return df_new
 
@@ -115,7 +115,7 @@ def base_expanded_df(alpha = 0.3, beta = 0.2, k = 20, isValidation=False, save=F
 
 def expand_df(df):
     df_list = []
-    for (q, pred, score, s_name, s_email, s_phone, idx, pred_rec_id) in tqdm(
+    for (q, pred, score, s_name, s_email, s_phone, idx) in tqdm(
             zip(df.queried_record_id, df.predicted_record_id, df.cosine_score,
                 df.name_cosine, df.email_cosine, df.phone_cosine, df.linked_id_idx)):
         for x in range(len(pred)):
@@ -153,9 +153,9 @@ def adding_features(df, isValidation=True):
     phone_pop = pd.read_csv( feat_dir.joinpath("phone_popularity.csv"))
     name_length = pd.read_csv( feat_dir.joinpath("test_name_length.csv"))
 
-    df['editdistance'] = compute_editdistance(test, validation=isValidation)
+    df['editdistance'] = compute_editdistance(df, validation=isValidation)
     df = df.merge(email_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
-    df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',axis=1).rename(
+    df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').rename(
         columns={'popularity': 'linked_id_popularity'})
     df = df.merge(name_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
     df = df.merge(nonnull_addr, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',
@@ -176,4 +176,3 @@ def adding_features(df, isValidation=True):
     df['null_phone'] = df.null_phone.astype(int)
 
     return df
-

@@ -7,11 +7,15 @@ import xgboost as xgb
 from xgb_dataset_generation import *
 
 
-train = base_expanded_df(alpha = 0.3, beta = 0.2, isValidation=True, save=False)
-test = base_expanded_df(alpha = 0.3, beta = 0.2, isValidation=False, save=False)
+#train = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=True, save=True)
+#test = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=False, save=True)
+train = pd.read_csv("dataset/expanded/base_expanded_train.csv")
+test = pd.read_csv("dataset/expanded/base_expanded_test.csv")
 
 train = adding_features(train, isValidation=True)
 test = adding_features(test, isValidation=False)
+train.to_csv('train_complete.csv', index=False)
+test.to_csv('test_complete.csv', index=False)
 
 group = train.groupby('queried_record_id').size().values
 ranker = xgb.XGBRanker()
@@ -46,4 +50,4 @@ for t in tqdm(df_predictions.predicted_record_id):
     new_col.append(' '.join([str(x) for x in t]))
 
 df_predictions.predicted_record_id = new_col
-df_predictions.to_csv('xgb_sub7.csv', index=False)
+df_predictions.to_csv('xgb_sub8.csv', index=False)

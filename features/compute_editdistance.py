@@ -6,11 +6,11 @@ import editdistance
 
 def compute_editdistance(df_exp, validation=True):
     if validation:
-        df_test = pd.read_csv("../dataset/validation/test.csv", escapechar="\\")
-        df_train = pd.read_csv("../dataset/validation/train.csv", escapechar="\\")
+        df_test = pd.read_csv("dataset/validation/test.csv", escapechar="\\")
+        df_train = pd.read_csv("dataset/validation/train.csv", escapechar="\\")
     else:
-        df_test = pd.read_csv("../dataset/original/test.csv", escapechar="\\")
-        df_train = pd.read_csv("../dataset/original/train.csv", escapechar="\\")
+        df_test = pd.read_csv("dataset/original/test.csv", escapechar="\\")
+        df_train = pd.read_csv("dataset/original/train.csv", escapechar="\\")
 
     df_train = df_train.sort_values(by='record_id').reset_index(drop=True)
     df_test = df_test.sort_values(by='record_id').reset_index(drop=True)
@@ -44,5 +44,3 @@ def compute_editdistance(df_exp, validation=True):
     df_exp['editdistance'] = extract_editdistance(df_exp.queried_name.values, df_exp.predicted_name.values)
     df_exp = df_exp.drop(['queried_name', 'predicted_name'], axis=1)
     return df_exp['editdistance']
-
-
