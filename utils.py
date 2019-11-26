@@ -72,7 +72,7 @@ def precision_at_k(resultTable: pd.DataFrame, trainingData: pd.DataFrame, testin
     then look in the training data the percentage of records that are actually relevant;
 
     For example, given query "1234-M", first retrieve the correct ID "1234" from the test data,
-    then obtain from the training data all records that refer to "1234", 
+    then obtain from the training data all records that refer to "1234",
     and finally look how many of the records we have found are actually referring to "1234"
     """
     groupedTrainingRecords = trainingData.groupby("linked_id").apply(lambda x: list(x['record_id']))
@@ -198,3 +198,16 @@ def recall_at_k(resultTable: pd.DataFrame, trainingData: pd.DataFrame, testingDa
         "AverageFilteredRecall": filtered_recall,
         "perQueryResult": result_table
     }
+
+def convert_phones(df_in):
+    """
+    This functions transforms the phone column from scientific notation to readable string
+    format, e.g. 1.2933+E10 to 12933000000
+    : param df_in : the original df with the phone in scientific notation
+    : return : the clean df
+    """
+    df = df_in.copy()
+    df.phone = df.phone.astype(str)
+    df.phone = [p.split('.')[0] for p in df.phone]
+    df.phone = df.phone.fillna('')
+    return df

@@ -27,7 +27,7 @@ def number_of_non_null_phone(isValidation):
     # compute the popularity to extract the percentage of non null phones
     pop = {}
     pop = dict(zip(list(set(df_train.linked_id.tolist())), [0 for x in range(len(list(set(df_train.linked_id.tolist()))))]))
-    for lid in tqdm(zip(df_train.linked_id)):
+    for lid in tqdm(df_train.linked_id):
         pop[lid] +=1
     # create the feature dataframe
     feature = pd.DataFrame()
