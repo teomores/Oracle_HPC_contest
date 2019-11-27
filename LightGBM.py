@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 from tqdm.auto import tqdm
 import sys
-import xgboost as xgb
-
 from xgb_dataset_generation import *
 
+import lightgbm as lgb
+import time
 
 #train = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=True, save=True)
 #test = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=False, save=True)
@@ -21,9 +21,12 @@ train = pd.read_csv("train_complete.csv")
 test = pd.read_csv("test_complete.csv")
 
 group = train.groupby('queried_record_id').size().values
-ranker = xgb.XGBRanker()
+ranker = lgb.LGBMRanker(device='gpu')
+print('Start LGBM...')
+t1 = time.time()
 ranker.fit(train.drop(['queried_record_id', 'target', 'linked_id_idx'], axis=1), train['target'], group=group)
-
+t2 = time.time()
+print(f'Learning completed in {int(t2-t1)} seconds.')
 predictions = ranker.predict(test.drop(['queried_record_id', 'linked_id_idx'], axis=1))
 test['predictions'] = predictions
 df_predictions = test[['queried_record_id', 'predicted_record_id', 'predictions']]
@@ -33,9 +36,11 @@ for (r,p) in zip(df_predictions.predicted_record_id, df_predictions.predictions)
     rec_pred.append((r, p))
 
 df_predictions['rec_pred'] = rec_pred
-df_predictions.to_csv('xgb_sub8_scores.csv', index = False)
+df_predictions.to_csv('lgb_sub8_scores.csv', index = False)
 group_queried = df_predictions[['queried_record_id', 'rec_pred']].groupby('queried_record_id').apply(lambda x: list(x['rec_pred']))
 df_predictions = pd.DataFrame(group_queried).reset_index().rename(columns={0 : 'rec_pred'})
+#rec_pred_corr = [[eval(x) for x in t] for t in tqdm(df_predictions.rec_pred)]
+#df_predictions['rec_pred'] = rec_pred_corr
 
 def reorder_preds(preds):
     sorted_list = []
@@ -53,4 +58,4 @@ for t in tqdm(df_predictions.predicted_record_id):
     new_col.append(' '.join([str(x) for x in t]))
 
 df_predictions.predicted_record_id = new_col
-df_predictions.to_csv('xgb_sub8.csv', index=False)
+df_predictions.to_csv('lgb_sub8.csv', index=False)

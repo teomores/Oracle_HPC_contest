@@ -152,14 +152,18 @@ def adding_features(df, isValidation=True):
     nonnull_phone = pd.read_csv( feat_dir.joinpath("number_of_non_null_phone.csv"))
     phone_pop = pd.read_csv( feat_dir.joinpath("phone_popularity.csv"))
     name_length = pd.read_csv( feat_dir.joinpath("test_name_length.csv"))
-
+    print(df.columns)
     df['editdistance'] = compute_editdistance(df, validation=isValidation)
     df = df.merge(email_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
-    df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').rename(
+    print(df.columns)
+    df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id', axis=1).rename(
         columns={'popularity': 'linked_id_popularity'})
+    print(df.columns)
     df = df.merge(name_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
-    df = df.merge(nonnull_addr, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',
-                                                                                                          axis=1)
+    print(df.columns)
+    df = df.merge(nonnull_addr, how='left', left_on='predicted_record_id', right_on='linked_id')
+    print(df.columns)
+    df = df.drop('linked_id', axis=1)
     df = df.merge(nonnull_email, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',
                                                                                                            axis=1)
     df = df.merge(nonnull_phone, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',

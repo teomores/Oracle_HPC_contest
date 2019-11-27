@@ -77,7 +77,7 @@ def precision_at_k(resultTable: pd.DataFrame, trainingData: pd.DataFrame, testin
     """
     groupedTrainingRecords = trainingData.groupby("linked_id").apply(lambda x: list(x['record_id']))
     groupedTrainingRecords = groupedTrainingRecords.reset_index().rename(columns={0: 'record_id'})
-
+    groupedTrainingRecords.linked_id = groupedTrainingRecords.linked_id.astype(str)
     resultTable = resultTable.sort_values(by='queried_record_id')
     testingData = testingData.sort_values(by='record_id')
 
@@ -91,7 +91,7 @@ def precision_at_k(resultTable: pd.DataFrame, trainingData: pd.DataFrame, testin
 
     allRecords = dict()
 
-    resultTable['linked_id'] = testingData.linked_id.values
+    resultTable['linked_id'] = testingData.linked_id.astype(str)
     resultTable = resultTable.merge(groupedTrainingRecords, how='left', left_on='linked_id', right_on='linked_id')
     #print(f"\ttime elapsed: {(time.time() - start):.2f} s")
 
