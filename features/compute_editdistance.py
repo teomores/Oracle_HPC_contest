@@ -42,5 +42,5 @@ def compute_editdistance(df_exp, validation=True):
         return res
 
     df_exp['editdistance'] = extract_editdistance(df_exp.queried_name.values, df_exp.predicted_name.values)
-    df_exp = df_exp.drop(['queried_name', 'predicted_name'], axis=1)
+    #df_exp = df_exp.drop(['queried_name', 'predicted_name'], axis=1)
     return df_exp['editdistance']

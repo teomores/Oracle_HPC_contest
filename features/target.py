@@ -10,4 +10,5 @@ def target(df_exp_train):
         return res
 
     df_exp_train['target'] = extract_target(df_exp_train.predicted_record_id.values, df_exp_train.linked_id.values)
-    return df_exp_train.drop(['linked_id'], axis=1)
+    #return df_exp_train.drop(['linked_id'], axis=1)
+    return df_exp_train['target']
