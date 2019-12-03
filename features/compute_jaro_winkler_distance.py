@@ -6,21 +6,13 @@ from tqdm.auto import tqdm
 # TODO Ci impiega un po' forse meglio scriverla in Cython
 # TODO estenderla anche per la similarità tra mail o altro
 
-def compute_jaro_distance(df_exp, validation=True, Winkler=False):
+def compute_jaro_distance(df_exp, validation=True, Winkler=True):
     if validation:
-        df_test = pd.read_csv(
-            "/Users/alessiorussointroito/Documents/GitHub/Oracle_HPC_contest/dataset/validation/test.csv",
-            escapechar="\\")
-        df_train = pd.read_csv(
-            "/Users/alessiorussointroito/Documents/GitHub/Oracle_HPC_contest/dataset/validation/train.csv",
-            escapechar="\\")
+        df_test = pd.read_csv("dataset/validation/test.csv", escapechar="\\")
+        df_train = pd.read_csv("dataset/validation/train.csv",escapechar="\\")
     else:
-        df_test = pd.read_csv(
-            "/Users/alessiorussointroito/Documents/GitHub/Oracle_HPC_contest/dataset/original/test.csv",
-            escapechar="\\")
-        df_train = pd.read_csv(
-            "/Users/alessiorussointroito/Documents/GitHub/Oracle_HPC_contest/dataset/original/train.csv",
-            escapechar="\\")
+        df_test = pd.read_csv("dataset/original/test.csv", escapechar="\\")
+        df_train = pd.read_csv("dataset/original/train.csv", escapechar="\\")
 
     df_train = df_train.sort_values(by='record_id').reset_index(drop=True)
     df_test = df_test.sort_values(by='record_id').reset_index(drop=True)

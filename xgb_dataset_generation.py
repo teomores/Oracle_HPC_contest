@@ -6,29 +6,39 @@ from scipy.sparse import *
 from pathlib import Path
 
 from features.compute_editdistance import compute_editdistance
+from features.compute_jaro_winkler_distance import compute_jaro_distance
 from features.target import target
 
 
 def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=False):
     if isValidation:
-        sim_name = load_npz('jaccard_tfidf_name_validation.npz')
-        sim_email = load_npz('jaccard_tfidf_email_validation.npz')
-        sim_phone = load_npz('jaccard_tfidf_phone_validation.npz')
-        df_train = pd.read_csv('dataset/validation/train.csv', escapechar="\\")
-        df_test = pd.read_csv('dataset/validation/test.csv', escapechar="\\")
+        #sim_name = load_npz('jaccard_tfidf_name_validation.npz')
+        #sim_email = load_npz('jaccard_tfidf_email_validation.npz')
+        #sim_phone = load_npz('jaccard_tfidf_phone_validation.npz')
+        sim_name = load_npz('../similarity_cosine_complete_name_X_val.npz')
+        sim_email = load_npz('../similarity_cosine_complete_email_X_val.npz')
+        sim_phone = load_npz('../similarity_cosine_complete_phone_X_val.npz')
+        df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
+        df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
     else:
-        sim_name = load_npz('jaccard_tfidf_name_original.npz')
-        sim_email = load_npz('jaccard_tfidf_email_original.npz')
-        sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        df_train = pd.read_csv('dataset/original/train.csv', escapechar="\\")
-        df_test = pd.read_csv('dataset/original/test.csv', escapechar="\\")
+        #sim_name = load_npz('jaccard_tfidf_name_original.npz')
+        #sim_email = load_npz('jaccard_tfidf_email_original.npz')
+        #sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
+        sim_name = load_npz('../similarity_cosine_complete_name.npz')
+        sim_email = load_npz('../similarity_cosine_complete_email.npz')
+        sim_phone = load_npz('../similarity_cosine_complete_phone.npz')
+        df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
+        df_test = pd.read_csv('../dataset/original/test.csv', escapechar="\\")
 
     hybrid = sim_name + alpha * sim_email + beta * sim_phone
 
     df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
     df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
 
-    """
+    sim_name = sim_name.tolil()
+    sim_email = sim_email.tolil()
+    sim_phone = sim_phone.tolil()
+
     linid_ = []
     linid_idx = []
     linid_score = []
@@ -39,19 +49,19 @@ def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=
 
     tr = df_train[['record_id', 'linked_id']]
     for x in tqdm(range(df_test.shape[0])):
-        df = df_train.loc[hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]],:].drop_duplicates(['linked_id'])[:k]
+        #df = df_train.loc[hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]],:][:k]
         indices = hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]]
         df = tr.loc[indices, :][:k]
         linid_.append(df['linked_id'].values)
         linid_idx.append(df.index)
         linid_record_id.append(df.record_id.values)
         linid_score.append(np.sort(hybrid[x].data)[::-1][:k])
-        linid_name_cosine.append(np.sort(sim_name[x].data)[::-1][:k])
-        linid_email_cosine.append(np.sort(sim_email[x].data)[::-1][:k])
-        linid_phone_cosine.append(np.sort(sim_phone[x].data)[::-1][:k])
+        linid_name_cosine.append(sim_name[x, indices].toarray()[0])
+        linid_email_cosine.append(sim_email[x, indices].toarray()[0])
+        linid_phone_cosine.append(sim_phone[x, indices].toarray()[0])
+
 
     """
-
     linid_score = []
     linid_name_cosine = []
     linid_email_cosine = []
@@ -87,19 +97,19 @@ def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=
         linid_name_cosine.append([sim_name[x, t] for t in relevant_idx[x]])
         linid_email_cosine.append([sim_email[x, t] for t in relevant_idx[x]])
         linid_phone_cosine.append([sim_phone[x, t] for t in relevant_idx[x]])
+    
+    """
 
     df = pd.DataFrame()
     df['queried_record_id'] = df_test.record_id
-    df['predicted_record_id'] = linked_id_list
-    #df['predicted_record_id'] = linid_
-    #df['predicted_record_id_record'] = linid_record_id
+    df['predicted_record_id'] = linid_
+    df['predicted_record_id_record'] = linid_record_id
     df['cosine_score'] = linid_score
     df['name_cosine'] = linid_name_cosine
     df['email_cosine'] = linid_email_cosine
     df['phone_cosine'] = linid_phone_cosine
-    #df['linked_id_idx'] = linid_idx
-    df['linked_id_idx'] = relevant_idx
-
+    df['linked_id_idx'] = linid_idx
+    #df['linked_id_idx'] = relevant_idx
 
     df_new = expand_df(df)
 
@@ -115,13 +125,15 @@ def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=
 
 def expand_df(df):
     df_list = []
-    for (q, pred, score, s_name, s_email, s_phone, idx) in tqdm(
-            zip(df.queried_record_id, df.predicted_record_id, df.cosine_score,
+    for (q, pred, pred_rec, score, s_name, s_email, s_phone, idx) in tqdm(
+            zip(df.queried_record_id, df.predicted_record_id, df.predicted_record_id_record, df.cosine_score,
                 df.name_cosine, df.email_cosine, df.phone_cosine, df.linked_id_idx)):
         for x in range(len(pred)):
-            df_list.append((q, pred[x], score[x], s_name[x], s_email[x], s_phone[x], idx[x]))
+            df_list.append((q, pred[x], pred_rec[x], score[x], s_name[x], s_email[x], s_phone[x], idx[x]))
 
-    df_new = pd.DataFrame(df_list, columns=['queried_record_id', 'predicted_record_id', 'cosine_score', 'name_cosine',
+    # TODO da cambiare predicted_record_id in predicted_linked_id e 'predicted_record_id_record' in 'predicted_record_id'
+    df_new = pd.DataFrame(df_list, columns=['queried_record_id', 'predicted_record_id', 'predicted_record_id_record',
+                                            'cosine_score', 'name_cosine',
                                             'email_cosine', 'phone_cosine', 'linked_id_idx',
                                             ])
     return df_new
@@ -142,7 +154,7 @@ def adding_features(df, isValidation=True):
         feat_dir = curr_dir.joinpath("dataset/original/feature/")
 
     if isValidation:
-        df = target(df)
+        df['target'] = target(df)
 
     email_pop = pd.read_csv( feat_dir.joinpath("email_popularity.csv"))
     linked_id_pop = pd.read_csv( feat_dir.joinpath("linked_id_popularity.csv"))
@@ -154,6 +166,7 @@ def adding_features(df, isValidation=True):
     name_length = pd.read_csv( feat_dir.joinpath("test_name_length.csv"))
     print(df.columns)
     df['editdistance'] = compute_editdistance(df, validation=isValidation)
+    df['jaro_winkler'] = compute_jaro_distance(df, validation=isValidation)
     df = df.merge(email_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
     print(df.columns)
     df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id', axis=1).rename(
