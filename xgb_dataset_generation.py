@@ -35,10 +35,6 @@ def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=
     df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
     df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
 
-    sim_name = sim_name.tolil()
-    sim_email = sim_email.tolil()
-    sim_phone = sim_phone.tolil()
-
     linid_ = []
     linid_idx = []
     linid_score = []
