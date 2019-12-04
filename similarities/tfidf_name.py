@@ -11,7 +11,7 @@ import string as string_lib
 from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-def ngrams(string, n=2):
+def ngrams(string, n=3):
     string = string.encode("ascii", errors="ignore").decode() #remove non ascii chars
     string = string.lower() #make lower case
     string = string.translate(str.maketrans('', '', string_lib.punctuation)) # remove punctuation

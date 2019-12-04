@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 import argparse
 sys.path.append("..")
-from utils import convert_phones
+from utils import convert_phones, thresold_matrix
 
 def ngrams(string, n=3):
     # TODO: change for numbers?
@@ -58,5 +58,8 @@ tf_idf_matrix = vectorizer.fit_transform(all_phones)
 # split
 tf_idf_train = tf_idf_matrix[:df_train.shape[0],:] # 691440 è la lunghezza del train
 tf_idf_test = tf_idf_matrix[df_train.shape[0]:,:]
-jac = sim.jaccard(tf_idf_test, tf_idf_train.T, k=300)
-save_npz(f'jaccard_tfidf_phone_{args.split}.npz', jac.tocsr())
+k = 2000
+jac = sim.jaccard(tf_idf_test, tf_idf_train.T, k=k)
+jac_csr = jac.tocsr()
+m = thresold_matrix(jac_csr)
+save_npz(f'jaccard_tfidf_phone_{args.split}_{k}_thresholded_09.npz', m)

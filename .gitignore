@@ -3,3 +3,4 @@ dataset/original/*
 *.DS_Store
 *.npz
 *.csv
+*.pyc
