@@ -50,15 +50,15 @@ def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=
     tr = df_train[['record_id', 'linked_id']]
     for x in tqdm(range(df_test.shape[0])):
         #df = df_train.loc[hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]],:][:k]
-        indices = hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]]
+        indices = hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]][:k]
         df = tr.loc[indices, :][:k]
         linid_.append(df['linked_id'].values)
         linid_idx.append(df.index)
         linid_record_id.append(df.record_id.values)
         linid_score.append(np.sort(hybrid[x].data)[::-1][:k])
-        linid_name_cosine.append(sim_name[x, indices].toarray()[0])
-        linid_email_cosine.append(sim_email[x, indices].toarray()[0])
-        linid_phone_cosine.append(sim_phone[x, indices].toarray()[0])
+        linid_name_cosine.append([sim_name[x, t] for t in indices])
+        linid_email_cosine.append([sim_email[x, t] for t in indices])
+        linid_phone_cosine.append([sim_phone[x, t] for t in indices])
 
 
     """
