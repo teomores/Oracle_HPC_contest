@@ -12,32 +12,29 @@ from features.target import target
 
 def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=False):
     if isValidation:
-        #sim_name = load_npz('jaccard_tfidf_name_validation.npz')
-        #sim_email = load_npz('jaccard_tfidf_email_validation.npz')
-        #sim_phone = load_npz('jaccard_tfidf_phone_validation.npz')
-        sim_name = load_npz('../similarity_cosine_complete_name_X_val.npz')
-        sim_email = load_npz('../similarity_cosine_complete_email_X_val.npz')
-        sim_phone = load_npz('../similarity_cosine_complete_phone_X_val.npz')
-        df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
-        df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
+        sim_name = load_npz('jaccard_tfidf_name_validation.npz')
+        sim_email = load_npz('jaccard_tfidf_email_validation.npz')
+        sim_phone = load_npz('jaccard_tfidf_phone_validation.npz')
+        df_train = pd.read_csv('dataset/validation/train.csv', escapechar="\\")
+        df_test = pd.read_csv('dataset/validation/test.csv', escapechar="\\")
     else:
-        #sim_name = load_npz('jaccard_tfidf_name_original.npz')
-        #sim_email = load_npz('jaccard_tfidf_email_original.npz')
-        #sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        sim_name = load_npz('../similarity_cosine_complete_name.npz')
-        sim_email = load_npz('../similarity_cosine_complete_email.npz')
-        sim_phone = load_npz('../similarity_cosine_complete_phone.npz')
-        df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
-        df_test = pd.read_csv('../dataset/original/test.csv', escapechar="\\")
+        sim_name = load_npz('jaccard_tfidf_name_original.npz')
+        sim_email = load_npz('jaccard_tfidf_email_original.npz')
+        sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
+        df_train = pd.read_csv('dataset/original/train.csv', escapechar="\\")
+        df_test = pd.read_csv('dataset/original/test.csv', escapechar="\\")
 
+    print('Hybrid of similarities..')
     hybrid = sim_name + alpha * sim_email + beta * sim_phone
-
+    print('Ended')
     df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
     df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
 
-    sim_name = sim_name.tolil()
-    sim_email = sim_email.tolil()
-    sim_phone = sim_phone.tolil()
+    # print('Conversion from csr to lil for better accessing')
+    # sim_name = sim_name.tolil()
+    # sim_email = sim_email.tolil()
+    # sim_phone = sim_phone.tolil()
+    # print('Ended')
 
     linid_ = []
     linid_idx = []
@@ -50,15 +47,18 @@ def base_expanded_df(alpha = 0.2, beta = 0.05, k = 20, isValidation=False, save=
     tr = df_train[['record_id', 'linked_id']]
     for x in tqdm(range(df_test.shape[0])):
         #df = df_train.loc[hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]],:][:k]
-        indices = hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]]
+        indices = hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]][:k]
         df = tr.loc[indices, :][:k]
         linid_.append(df['linked_id'].values)
         linid_idx.append(df.index)
         linid_record_id.append(df.record_id.values)
         linid_score.append(np.sort(hybrid[x].data)[::-1][:k])
-        linid_name_cosine.append(sim_name[x, indices].toarray()[0])
-        linid_email_cosine.append(sim_email[x, indices].toarray()[0])
-        linid_phone_cosine.append(sim_phone[x, indices].toarray()[0])
+        #linid_name_cosine.append(sim_name[x, indices].toarray()[0])
+        #linid_email_cosine.append(sim_email[x, indices].toarray()[0])
+        #linid_phone_cosine.append(sim_phone[x, indices].toarray()[0])
+        linid_name_cosine.append([sim_name[x, t] for t in indices])
+        linid_email_cosine.append([sim_email[x, t] for t in indices])
+        linid_phone_cosine.append([sim_phone[x, t] for t in indices])
 
 
     """

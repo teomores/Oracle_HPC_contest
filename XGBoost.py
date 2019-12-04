@@ -7,15 +7,15 @@ import xgboost as xgb
 from xgb_dataset_generation import *
 
 
-#train = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=True, save=True)
-#test = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=False, save=True)
+train = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=True, save=True)
+test = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=False, save=True)
 #train = pd.read_csv("dataset/expanded/base_expanded_train.csv")
 #test = pd.read_csv("dataset/expanded/base_expanded_test.csv")
 
-#train = adding_features(train, isValidation=True)
-#test = adding_features(test, isValidation=False)
-#train.to_csv('train_complete.csv', index=False)
-#test.to_csv('test_complete.csv', index=False)
+train = adding_features(train, isValidation=True)
+test = adding_features(test, isValidation=False)
+train.to_csv('dataset/expanded/train_complete.csv', index=False)
+test.to_csv('dataset/expanded/test_complete.csv', index=False)
 
 train = pd.read_csv("train_complete.csv")
 test = pd.read_csv("test_complete.csv")
