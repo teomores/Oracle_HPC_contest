@@ -1,5 +1,6 @@
 import pandas as pd
 from tqdm import tqdm
+import os
 
 """
 This features finds typos related to upper, title or lower case.
@@ -27,7 +28,7 @@ def case_typo(isValidation):
         file_path = '../dataset/original/feature/case_typo.csv'
     if os.path.exists(file_path):
         os.remove(file_path)
-    final_feature.to_csv(filePafile_pathth, index=False)
+    final_feature.to_csv(file_path, index=False)
 
 def check_string_words(string):
     string = string.replace('-',' ')
