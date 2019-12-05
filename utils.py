@@ -212,7 +212,7 @@ def convert_phones(df_in):
     df.phone = df.phone.fillna('')
     return df
 
-def thresold_matrix(mat: csr_matrix, thr: float = 0.9) -> csr_matrix:
+def threshold_matrix(mat: csr_matrix, thr: float = 0.9) -> csr_matrix:
     """
     This functions takes as input a sparse matrix and masks out all the elements
     that are below the set threshold.
