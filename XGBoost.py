@@ -29,8 +29,8 @@ test['predictions'] = predictions
 df_predictions = test[['queried_record_id', 'predicted_record_id', 'predicted_record_id_record', 'predictions']]
 
 rec_pred = []
-for (r,p) in zip(df_predictions.predicted_record_id, df_predictions.predictions):
-    rec_pred.append((r, p))
+for (r,p,l,record_id) in zip(df_predictions.predicted_record_id, df_predictions.predictions, df_predictions.predicted_record_id_record):
+    rec_pred.append((r, p, l, record_id))
 
 df_predictions['rec_pred'] = rec_pred
 df_predictions.to_csv('xgb_sub8_scores.csv', index = False)
