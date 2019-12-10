@@ -14,14 +14,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 def ngrams(string, n=3):
     string = string.encode("ascii", errors="ignore").decode() #remove non ascii chars
     string = string.lower() #make lower case
-    string = string.translate(str.maketrans('', '', string_lib.punctuation)) # remove punctuation
-    chars_to_remove = [")","(",".","|","[","]","{","}","'"]
-    rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
-    string = re.sub(rx, '', string) #remove the list of chars defined above
-    string = string.replace('&', ' ')
-    string = string.replace(',', ' ')
-    string = string.replace('-', ' ')
-    #string = string.title() # normalise case - capital at start of each word
+    # string = string.translate(str.maketrans('', '', string_lib.punctuation)) # remove punctuation
+    # chars_to_remove = [")","(",".","|","[","]","{","}","'"]
+    # rx = '[' + re.escape(''.join(chars_to_remove)) + ']'
+    # string = re.sub(rx, '', string) #remove the list of chars defined above
+    # string = string.replace('&', ' ')
+    # string = string.replace(',', ' ')
+    # string = string.replace('-', ' ')
+    # #string = string.title() # normalise case - capital at start of each word
     string = re.sub(' +',' ',string).strip() # get rid of multiple spaces and replace with a single space
     string = ' '+ string +' ' # pad names for ngrams...
     string = re.sub(r'[,-./]',r'', string)
@@ -53,4 +53,4 @@ tf_idf_matrix = vectorizer.fit_transform(all_names)
 tf_idf_train = tf_idf_matrix[:df_train.shape[0],:] # 691440 è la lunghezza del train
 tf_idf_test = tf_idf_matrix[df_train.shape[0]:,:]
 cos_tfidf = sim.jaccard(tf_idf_test, tf_idf_train.T, k=300)
-save_npz(f'jaccard_tfidf_name_{args.split}.npz', cos_tfidf.tocsr())
+save_npz(f'jaccard_tfidf_name_{args.split}_noclean.npz', cos_tfidf.tocsr())

@@ -10,25 +10,25 @@ from features.compute_jaro_winkler_distance import compute_jaro_distance
 from features.target import target
 
 
-def base_expanded_df(alpha = 0.05, beta = 0.2, gamma = 0.1, k = 50, isValidation=False, save=False):
+def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=False, save=False):
     if isValidation:
         #sim_name = load_npz('jaccard_tfidf_name_validation.npz')
         #sim_email = load_npz('jaccard_tfidf_email_validation.npz')
         #sim_phone = load_npz('jaccard_tfidf_phone_validation.npz')
-        sim_name = load_npz('jaccard_tfidf_name_validation.npz')
-        sim_email = load_npz('jaccard_tfidf_email_validation.npz')
-        sim_phone = load_npz('jaccard_tfidf_phone_validation.npz')
-        sim_address = load_npz('jaccard_tfidf_address_validation.npz')
         df_train = pd.read_csv('dataset/validation/train.csv', escapechar="\\")
         df_test = pd.read_csv('dataset/validation/test.csv', escapechar="\\")
+        sim_name = load_npz('jaccard_uncleaned_name_300k_validation.npz')
+        sim_email = load_npz('jaccard_uncleaned_email_300k_validation.npz')
+        sim_phone = load_npz('jaccard_uncleaned_phone_300k_validation.npz')
+        sim_address = load_npz('jaccard_uncleaned_address_300k_validation.npz')
     else:
         #sim_name = load_npz('jaccard_tfidf_name_original.npz')
         #sim_email = load_npz('jaccard_tfidf_email_original.npz')
         #sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        sim_name = load_npz('jaccard_tfidf_name_original.npz')
-        sim_email = load_npz('jaccard_tfidf_email_original.npz')
-        sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        sim_address = load_npz('jaccard_tfidf_address_original.npz')
+        sim_name = load_npz('jaccard_uncleaned_name_300k_original.npz')
+        sim_email = load_npz('jaccard_uncleaned_email_300k_original.npz')
+        sim_phone = load_npz('jaccard_uncleaned_phone_300k_original.npz')
+        sim_address = load_npz('jaccard_uncleaned_address_300k_original.npz')
         df_train = pd.read_csv('dataset/original/train.csv', escapechar="\\")
         df_test = pd.read_csv('dataset/original/test.csv', escapechar="\\")
 
@@ -154,6 +154,7 @@ def adding_features(df, isValidation=True):
     if isValidation:
         df['target'] = target(df)
 
+    case_typo = pd.read_csv( feat_dir.joinpath("case_typo.csv"))
     email_pop = pd.read_csv( feat_dir.joinpath("email_popularity.csv"))
     linked_id_pop = pd.read_csv( feat_dir.joinpath("linked_id_popularity.csv"))
     name_pop = pd.read_csv( feat_dir.joinpath("name_popularity.csv"))
@@ -162,6 +163,7 @@ def adding_features(df, isValidation=True):
     nonnull_phone = pd.read_csv( feat_dir.joinpath("number_of_non_null_phone.csv"))
     phone_pop = pd.read_csv( feat_dir.joinpath("phone_popularity.csv"))
     name_length = pd.read_csv( feat_dir.joinpath("test_name_length.csv"))
+
     print(df.columns)
     # Edit Distance
     df['editdistance'] = compute_editdistance(df, validation=isValidation)
@@ -173,7 +175,6 @@ def adding_features(df, isValidation=True):
     print(df.columns)
     df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id', axis=1).rename(
         columns={'popularity': 'linked_id_popularity'})
-    print(df.columns)
     df = df.merge(name_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
     print(df.columns)
     df = df.merge(nonnull_addr, how='left', left_on='predicted_record_id', right_on='linked_id')
@@ -183,6 +184,10 @@ def adding_features(df, isValidation=True):
                                                                                                            axis=1)
     df = df.merge(nonnull_phone, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',
                                                                                                            axis=1)
+    print(df.columns)
+    df = df.merge(case_typo, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id',
+                                                                                                           axis=1)
+    print(df.columns)
     df = df.merge(phone_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id',
                                                                                                      axis=1)
     df = df.merge(name_length, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id',

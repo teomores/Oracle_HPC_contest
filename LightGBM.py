@@ -7,15 +7,15 @@ from xgb_dataset_generation import *
 import lightgbm as lgb
 import time
 
-#train = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=True, save=True)
-#test = base_expanded_df(alpha = 0.2, beta = 0.05, isValidation=False, save=True)
+train = base_expanded_df(isValidation=True, save=True)
+test = base_expanded_df(isValidation=False, save=True)
 #train = pd.read_csv("dataset/expanded/base_expanded_train.csv")
 #test = pd.read_csv("dataset/expanded/base_expanded_test.csv")
 
-#train = adding_features(train, isValidation=True)
-#test = adding_features(test, isValidation=False)
-#train.to_csv('train_complete.csv', index=False)
-#test.to_csv('test_complete.csv', index=False)
+train = adding_features(train, isValidation=True)
+test = adding_features(test, isValidation=False)
+train.to_csv('train_complete.csv', index=False)
+test.to_csv('test_complete.csv', index=False)
 
 train = pd.read_csv("train_complete.csv")
 test = pd.read_csv("test_complete.csv")
@@ -24,19 +24,18 @@ group = train.groupby('queried_record_id').size().values
 ranker = lgb.LGBMRanker(device='gpu')
 print('Start LGBM...')
 t1 = time.time()
-ranker.fit(train.drop(['queried_record_id', 'target', 'linked_id_idx'], axis=1), train['target'], group=group)
+ranker.fit(train.drop(['queried_record_id', 'target', 'predicted_record_id','predicted_record_id_record', 'linked_id_idx'], axis=1), train['target'], group=group)
 t2 = time.time()
 print(f'Learning completed in {int(t2-t1)} seconds.')
-predictions = ranker.predict(test.drop(['queried_record_id', 'linked_id_idx'], axis=1))
+predictions = ranker.predict(test.drop(['queried_record_id', 'linked_id_idx', 'predicted_record_id','predicted_record_id_record'], axis=1))
 test['predictions'] = predictions
 df_predictions = test[['queried_record_id', 'predicted_record_id', 'predicted_record_id_record', 'predictions']]
 
 rec_pred = []
-for (r,p,l,record_id) in zip(df_predictions.predicted_record_id, df_predictions.predictions, df_predictions.predicted_record_id_record):
-    rec_pred.append((r, p, l, record_id))
+for (l,p,record_id) in zip(df_predictions.predicted_record_id, df_predictions.predictions, df_predictions.predicted_record_id_record):
+    rec_pred.append((l, p, record_id))
 
 df_predictions['rec_pred'] = rec_pred
-df_predictions.to_csv('lgb_sub8_scores.csv', index = False)
 group_queried = df_predictions[['queried_record_id', 'rec_pred']].groupby('queried_record_id').apply(lambda x: list(x['rec_pred']))
 df_predictions = pd.DataFrame(group_queried).reset_index().rename(columns={0 : 'rec_pred'})
 
@@ -62,4 +61,4 @@ df_predictions['ordered_linked'], df_predictions['ordered_scores'], df_predictio
 #    new_col.append(' '.join([str(x) for x in t]))
 
 #df_predictions.predicted_record_id = new_col
-#df_predictions.to_csv('lgb_sub8.csv', index=False)
+df_predictions.to_csv('lgb_predictions_new.csv', index=False)

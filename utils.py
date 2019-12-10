@@ -2,6 +2,7 @@ from tqdm import tqdm
 from scipy import *
 from scipy.sparse import *
 import pandas as pd
+import re
 
 def get_sub(sim, df_train, df_test, sub_name='mimmo'):
     """
@@ -207,9 +208,8 @@ def convert_phones(df_in):
     : return : the clean df
     """
     df = df_in.copy()
-    df.phone = df.phone.astype(str)
+    df.phone = df.phone.fillna('').astype(str)
     df.phone = [p.split('.')[0] for p in df.phone]
-    df.phone = df.phone.fillna('')
     return df
 
 def threshold_matrix(mat: csr_matrix, thr: float = 0.9) -> csr_matrix:
@@ -219,3 +219,10 @@ def threshold_matrix(mat: csr_matrix, thr: float = 0.9) -> csr_matrix:
     """
     mat.data[mat.data < thr] = 0
     return mat
+
+def email_checker(email):
+    regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+    if(re.search(regex,email)):
+        return 1
+    else:
+        return 0
