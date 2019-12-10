@@ -163,8 +163,12 @@ def adding_features(df, isValidation=True):
     phone_pop = pd.read_csv( feat_dir.joinpath("phone_popularity.csv"))
     name_length = pd.read_csv( feat_dir.joinpath("test_name_length.csv"))
     print(df.columns)
+    # Edit Distance
     df['editdistance'] = compute_editdistance(df, validation=isValidation)
-    df['jaro_winkler'] = compute_jaro_distance(df, validation=isValidation)
+
+    #Jaro-Winkler
+    df = df.join(compute_jaro_distance(df, validation=isValidation))
+
     df = df.merge(email_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
     print(df.columns)
     df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id', axis=1).rename(
