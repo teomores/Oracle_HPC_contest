@@ -20,6 +20,7 @@ X_train, X_val, y_train, y_val = train_test_split(train, train['linked_id'] , te
 
 if not os.path.isdir("dataset/validation_2"):
     os.makedirs("dataset/validation_2")
+    os.makedirs("dataset/validation_2/feature")
 
 complete_train_1 = pd.concat([X_train, test])
 complete_train_1.to_csv("dataset/validation_2/train.csv", index=False)
@@ -27,6 +28,8 @@ X_val.to_csv("dataset/validation_2/test.csv", index=False)
 
 if not os.path.isdir("dataset/validation_3"):
     os.makedirs("dataset/validation_3")
+    os.makedirs("dataset/validation_3/feature")
+
 
 complete_train_2 = pd.concat([X_val, test])
 complete_train_2.to_csv("dataset/validation_3/train.csv", index=False)
