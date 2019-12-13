@@ -2,15 +2,20 @@ import pandas as pd
 from scipy import *
 from scipy.sparse import *
 from tqdm.auto import tqdm
+import os
 
 """
 For each test phone assigns the overall phone popularity.
 """
 
-def phone_popularity(isValidation):
+def phone_popularity(isValidation, path=""):
     if isValidation:
-        df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
-        df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
+        train_path = os.path.join(path, 'train.csv')
+        test_path = os.path.join(path, 'test.csv')
+        df_train = pd.read_csv(train_path, escapechar="\\")
+        df_test = pd.read_csv(test_path, escapechar="\\")
+        #df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
+        #df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
     else:
         df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
         df_test = pd.read_csv('../dataset/original/test.csv', escapechar="\\")
@@ -36,10 +41,13 @@ def phone_popularity(isValidation):
     final_feature.phone_popularity = final_feature.phone_popularity.astype(int)
     print(final_feature)
     if isValidation:
-        final_feature.to_csv('../dataset/validation/feature/phone_popularity.csv', index=False)
+        feat_path = os.path.join(path, 'feature/phone_popularity.csv')
+        final_feature.to_csv(feat_path, index=False)
     else:
         final_feature.to_csv('../dataset/original/feature/phone_popularity.csv', index=False)
 
 
-phone_popularity(True)
-phone_popularity(False)
+phone_popularity(True, path="../dataset/validation_2")
+phone_popularity(True, path="../dataset/validation_3")
+
+#phone_popularity(False)

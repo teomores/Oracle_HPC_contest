@@ -1,15 +1,18 @@
 import pandas as pd
 from tqdm import tqdm
+import os
 
 """
 This feature computes the number of times that a linked_id appears in the
 training set.
 """
 
-def linked_id_popularity(isValidation):
+def linked_id_popularity(isValidation, path=""):
 
     if isValidation:
-        df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
+        #df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
+        train_path = os.path.join(path,  'train.csv')
+        df_train = pd.read_csv(train_path, escapechar="\\")
     else:
         df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
 
@@ -25,11 +28,14 @@ def linked_id_popularity(isValidation):
     feature['popularity'] = pop.values()
     print(feature)
     if isValidation:
-        feature.to_csv('../dataset/validation/feature/linked_id_popularity.csv', index = False)
+        feat_path = os.path.join(path, 'feature/linked_id_popularity.csv')
+        feature.to_csv(feat_path, index = False)
     else:
         feature.to_csv('../dataset/original/feature/linked_id_popularity.csv', index = False)
 
 
 
-linked_id_popularity(True)
-linked_id_popularity(False)
+linked_id_popularity(True, path="../dataset/validation_2")
+linked_id_popularity(True, path="../dataset/validation_3")
+
+#linked_id_popularity(False)

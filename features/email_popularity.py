@@ -2,14 +2,17 @@ import pandas as pd
 from scipy import *
 from scipy.sparse import *
 from tqdm.auto import tqdm
+import os
 
 """
 For each test email assigns the overall email popularity.
 """
-def email_popularity(isValidation):
+def email_popularity(isValidation, path=""):
     if isValidation:
-        df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
-        df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
+        train_path = os.path.join(path,  'train.csv')
+        test_path = os.path.join(path, 'test.csv')
+        df_train = pd.read_csv(train_path, escapechar="\\")
+        df_test = pd.read_csv(test_path, escapechar="\\")
     else:
         df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
         df_test = pd.read_csv('../dataset/original/test.csv', escapechar="\\")
@@ -36,12 +39,15 @@ def email_popularity(isValidation):
     print(final_feature)
 
     if isValidation:
-        final_feature.to_csv('../dataset/validation/feature/email_popularity.csv', index=False)
+        feat_path = os.path.join(path, 'feature/email_popularity.csv')
+        final_feature.to_csv(feat_path, index=False)
     else:
         final_feature.to_csv('../dataset/original/feature/email_popularity.csv', index=False)
 
 
 
 
-email_popularity(True)
+email_popularity(True, path="../dataset/validation_2")
+email_popularity(True, path="../dataset/validation_3")
+
 email_popularity(False)

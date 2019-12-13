@@ -2,6 +2,7 @@ import pandas as pd
 from scipy import *
 from scipy.sparse import *
 from tqdm.auto import tqdm
+import os
 
 """
 For each linked_id, computes:
@@ -10,9 +11,11 @@ For each linked_id, computes:
     linked_id appears
 """
 
-def number_of_non_null_email(isValidation):
+def number_of_non_null_email(isValidation, path=""):
     if isValidation:
-        df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
+        train_path = os.path.join(path, 'train.csv')
+        df_train = pd.read_csv(train_path, escapechar="\\")
+        #df_train = pd.read_csv('../dataset/validation/train.csv', escapechar="\\")
     else:
         df_train = pd.read_csv('../dataset/original/train.csv', escapechar="\\")
 
@@ -43,9 +46,12 @@ def number_of_non_null_email(isValidation):
     feature = feature.drop(['popularity'], axis=1)
     print(feature)
     if isValidation:
-        feature.to_csv('../dataset/validation/feature/number_of_non_null_email.csv', index = False)
+        feat_path = os.path.join(path, 'feature/number_of_non_null_email.csv')
+        feature.to_csv(feat_path, index = False)
     else:
         feature.to_csv('../dataset/original/feature/number_of_non_null_email.csv', index = False)
 
-number_of_non_null_email(True)
-number_of_non_null_email(False)
+number_of_non_null_email(True, path="../dataset/validation_2")
+number_of_non_null_email(True, path="../dataset/validation_3")
+
+#number_of_non_null_email(False)

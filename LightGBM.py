@@ -3,22 +3,29 @@ import numpy as np
 from tqdm.auto import tqdm
 import sys
 from xgb_dataset_generation import *
+import os
 
 import lightgbm as lgb
 import time
 
-train = base_expanded_df(isValidation=True, save=True)
+######   Change this parameter   ###########
+validation_path = "dataset/validation_2"
+
+
+train = base_expanded_df(isValidation=True, save=True, path=validation_path)
 test = base_expanded_df(isValidation=False, save=True)
 #train = pd.read_csv("dataset/expanded/base_expanded_train.csv")
 #test = pd.read_csv("dataset/expanded/base_expanded_test.csv")
 
-train = adding_features(train, isValidation=True)
+train = adding_features(train, isValidation=True, path=validation_path)
 test = adding_features(test, isValidation=False)
-train.to_csv('train_complete.csv', index=False)
+
+save_path = os.path.join(validation_path, "train_complete.csv")
+train.to_csv(save_path , index=False)
 test.to_csv('test_complete.csv', index=False)
 
-train = pd.read_csv("train_complete.csv")
-test = pd.read_csv("test_complete.csv")
+#train = pd.read_csv("train_complete.csv")
+#test = pd.read_csv("test_complete.csv")
 
 group = train.groupby('queried_record_id').size().values
 ranker = lgb.LGBMRanker(device='gpu')

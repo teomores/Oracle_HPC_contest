@@ -1,13 +1,16 @@
 import pandas as pd
 from scipy import *
 from scipy.sparse import *
+import os
 
 """
 For each test record_id computes the length of the name.
 """
-def test_name_length(isValidation):
+def test_name_length(isValidation, path=""):
     if isValidation:
-        df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
+        test_path = os.path.join(path, 'test.csv')
+        df_test = pd.read_csv(test_path, escapechar="\\")
+        #df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
     else:
         df_test = pd.read_csv('../dataset/original/test.csv', escapechar="\\")
 
@@ -21,10 +24,13 @@ def test_name_length(isValidation):
     print(feature)
 
     if isValidation:
-        feature.to_csv('../dataset/validation/feature/test_name_length.csv', index=False)
+        feat_path = os.path.join(path, 'feature/test_name_length.csv')
+        feature.to_csv(feat_path, index=False)
     else:
         feature.to_csv('../dataset/original/feature/test_name_length.csv', index=False)
 
 
-test_name_length(True)
-test_name_length(False)
+test_name_length(True, path="../dataset/validation_2")
+test_name_length(True, path="../dataset/validation_3")
+
+#test_name_length(False)

@@ -11,11 +11,14 @@ E.g:
     AppLE ---> Typo!
 """
 
-def case_typo(isValidation):
+def case_typo(isValidation, path=""):
     if isValidation:
-        df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
+        test_path = os.path.join(path, 'test.csv')
+        df_test = pd.read_csv(test_path, escapechar="\\")
+        #df_test = pd.read_csv('../dataset/validation/test.csv', escapechar="\\")
     else:
         df_test = pd.read_csv('../dataset/original/test.csv', escapechar="\\")
+
     df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
     feature = df_test[['record_id','name']]
     feature.name = feature.name.astype(str)
@@ -23,7 +26,8 @@ def case_typo(isValidation):
     final_feature = feature[['record_id','case_typo']]
     print(final_feature)
     if isValidation:
-        file_path = '../dataset/validation/feature/case_typo.csv'
+        file_path = os.path.join(path, "feature/case_type.csv")
+        #file_path = '../dataset/validation/feature/case_typo.csv'
     else:
         file_path = '../dataset/original/feature/case_typo.csv'
     if os.path.exists(file_path):
@@ -41,5 +45,7 @@ def check_string_words(string):
             return 1
     return 0
 
-case_typo(True)
-case_typo(False)
+case_typo(True, path="../dataset/validation_2")
+case_typo(True, path="../dataset/validation_3")
+
+#case_typo(False)

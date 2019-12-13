@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
+import os
 
-def target(df_exp_train):
-    df_val = pd.read_csv("dataset/validation/test.csv", escapechar="\\")
+def target(df_exp_train, path=""):
+    path_validation = os.path.join(path, "test.csv")
+    df_val = pd.read_csv(path_validation, escapechar="\\")
     df_exp_train = df_exp_train.merge(df_val[['record_id', 'linked_id']], how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
 
     def extract_target(predicted, linked):

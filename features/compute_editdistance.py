@@ -2,12 +2,17 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import editdistance
+import os
 
 
-def compute_editdistance(df_exp, validation=True):
+def compute_editdistance(df_exp, validation=True, path=""):
     if validation:
-        df_test = pd.read_csv("dataset/validation/test.csv", escapechar="\\")
-        df_train = pd.read_csv("dataset/validation/train.csv", escapechar="\\")
+        train_path = os.path.join(path, 'train.csv')
+        test_path = os.path.join(path, 'test.csv')
+        df_train = pd.read_csv(train_path, escapechar="\\")
+        df_test = pd.read_csv(test_path, escapechar="\\")
+        #df_test = pd.read_csv("dataset/validation/test.csv", escapechar="\\")
+        #df_train = pd.read_csv("dataset/validation/train.csv", escapechar="\\")
     else:
         df_test = pd.read_csv("dataset/original/test.csv", escapechar="\\")
         df_train = pd.read_csv("dataset/original/train.csv", escapechar="\\")
