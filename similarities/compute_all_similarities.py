@@ -14,4 +14,4 @@ similarities = [
 for sim in similarities:
     for sp in splits:
         print(f'Computing {sim} for split {sp}')
-        os.system(f'python {sim} -s={sp}')
+        os.system(f'python3 {sim} -s={sp}')
