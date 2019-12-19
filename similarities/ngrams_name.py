@@ -15,7 +15,7 @@ def remove_spaces(s, n=3):
 parser = argparse.ArgumentParser()
 parser.add_argument("-s","--split",
                     help="The dataset split to use",
-                    choices=['original','validation'],
+                    choices=['original','validation','validation_2','validation_3'],
                     type=str,
                     required=True)
 args = parser.parse_args()
@@ -31,7 +31,6 @@ corpus = list(df_train.name) + list(df_test.name)
 vectorizer = CountVectorizer(preprocessor = remove_spaces, analyzer=remove_spaces)
 X = vectorizer.fit_transform(corpus)
 X_train = X[:df_train.shape[0],:]
-X_train = sim.normalization.bm25(X_train)
 X_test = X[df_train.shape[0]:,:]
 cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
-save_npz(f'jaccard_uncleaned_name_300k_{args.split}_bm25.npz', cosmatrixxx.tocsr())
+save_npz(f'jaccard_uncleaned_name_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())
