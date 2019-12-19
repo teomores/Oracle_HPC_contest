@@ -5,6 +5,7 @@ import similaripy as sim
 from sklearn.feature_extraction.text import CountVectorizer
 import argparse
 import re
+import os
 
 def remove_spaces(s, n=3):
     s = re.sub(' +',' ',s).strip()
@@ -20,8 +21,8 @@ parser.add_argument("-s","--split",
                     required=True)
 args = parser.parse_args()
 # first load the data
-df_train = pd.read_csv(f"../dataset/{args.split}/train.csv", escapechar="\\")
-df_test = pd.read_csv(f"../dataset/{args.split}/test.csv", escapechar="\\")
+df_train = pd.read_csv(f'../dataset/{args.split}/train.csv', escapechar="\\")
+df_test = pd.read_csv(f'../dataset/{args.split}/test.csv', escapechar="\\")
 # ALWAYS sort the data by record_id
 df_train = df_train.sort_values(by=['record_id']).reset_index(drop=True)
 df_test = df_test.sort_values(by=['record_id']).reset_index(drop=True)
@@ -33,4 +34,8 @@ X = vectorizer.fit_transform(corpus)
 X_train = X[:df_train.shape[0],:]
 X_test = X[df_train.shape[0]:,:]
 cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
-save_npz(f'jaccard_uncleaned_address_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())
+
+if os.path.isdir(f"../dataset/{args.split}/similarities"):
+    os.makedirs(f"../dataset/{args.split}/similarities")
+
+save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_address_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())

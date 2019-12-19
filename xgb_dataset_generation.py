@@ -12,6 +12,7 @@ from features.target import target
 
 def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=False, save=False, path=""):
     if isValidation:
+        val_name = path.split("/")[-1]
         train_path = os.path.join(path, 'train.csv')
         test_path = os.path.join(path, 'test.csv')
         df_train = pd.read_csv(train_path, escapechar="\\")
@@ -24,11 +25,12 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         #df_test = pd.read_csv('dataset/validation/test.csv', escapechar="\\")
 
         # TODO MORE: dividere per bene le similarità in base al validation set considerato
+        sim_path = os.path.join(path, 'similarities')
 
-        sim_name = load_npz('jaccard_uncleaned_name_300k_validation.npz')
-        sim_email = load_npz('jaccard_uncleaned_email_300k_validation.npz')
-        sim_phone = load_npz('jaccard_uncleaned_phone_300k_validation.npz')
-        sim_address = load_npz('jaccard_uncleaned_address_300k_validation.npz')
+        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_validation.npz'))
+        sim_email = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_email_300k_validation.npz'))
+        sim_phone = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_phone_300k_validation.npz'))
+        sim_address = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_address_300k_validation.npz'))
     else:
         #sim_name = load_npz('jaccard_tfidf_name_original.npz')
         #sim_email = load_npz('jaccard_tfidf_email_original.npz')

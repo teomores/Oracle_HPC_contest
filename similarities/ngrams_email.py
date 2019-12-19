@@ -33,4 +33,8 @@ X = vectorizer.fit_transform(corpus)
 X_train = X[:df_train.shape[0],:]
 X_test = X[df_train.shape[0]:,:]
 cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
-save_npz(f'jaccard_uncleaned_email_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())
+
+if os.path.isdir(f"../dataset/{args.split}/similarities"):
+    os.makedirs(f"../dataset/{args.split}/similarities")
+
+save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_email_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())
