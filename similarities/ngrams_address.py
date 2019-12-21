@@ -35,7 +35,7 @@ X_train = X[:df_train.shape[0],:]
 X_test = X[df_train.shape[0]:,:]
 cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
 
-if os.path.isdir(f"../dataset/{args.split}/similarities"):
+if not os.path.isdir(f"../dataset/{args.split}/similarities"):
     os.makedirs(f"../dataset/{args.split}/similarities")
 
 save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_address_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())

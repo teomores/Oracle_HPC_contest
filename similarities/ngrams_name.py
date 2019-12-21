@@ -5,6 +5,7 @@ import similaripy as sim
 from sklearn.feature_extraction.text import CountVectorizer
 import argparse
 import re
+import os
 
 def remove_spaces(s, n=3):
     s = re.sub(' +',' ',s).strip()
@@ -35,7 +36,7 @@ X_test = X[df_train.shape[0]:,:]
 cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
 
 
-if os.path.isdir(f"../dataset/{args.split}/similarities"):
+if not os.path.isdir(f"../dataset/{args.split}/similarities"):
     os.makedirs(f"../dataset/{args.split}/similarities")
 
 save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_name_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())
