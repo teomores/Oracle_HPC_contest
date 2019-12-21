@@ -12,7 +12,9 @@ import os
 
 def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=False, save=False, path=""):
     if isValidation:
-        val_name = path.split("\\")[-1]
+        #val_name = path.split("\\")[-1]   # Windows
+        val_name = path.split("/")[-1]   # Mac
+        print(val_name)
         train_path = os.path.join(path, 'train.csv')
         test_path = os.path.join(path, 'test.csv')
         print(test_path)
