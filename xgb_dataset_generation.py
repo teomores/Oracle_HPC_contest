@@ -9,6 +9,7 @@ from features.compute_editdistance import compute_editdistance
 from features.compute_jaro_winkler_distance import compute_jaro_distance
 from features.target import target
 import os
+import time
 
 def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=False, save=False, path=""):
 
@@ -40,10 +41,10 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         #sim_name = load_npz('jaccard_tfidf_name_original.npz')
         #sim_email = load_npz('jaccard_tfidf_email_original.npz')
         #sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_original.npz'))
-        sim_email = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_email_300k_original.npz'))
-        sim_phone = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_phone_300k_original.npz'))
-        sim_address = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_address_300k_original.npz'))
+        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_original_2ngrams.npz'))
+        sim_email = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_email_300k_original_2ngrams.npz'))
+        sim_phone = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_phone_300k_original_2ngrams.npz'))
+        sim_address = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_address_300k_original_2ngrams.npz'))
         df_train = pd.read_csv('dataset/original/train.csv', escapechar="\\")
         df_test = pd.read_csv('dataset/original/test.csv', escapechar="\\")
 
@@ -58,7 +59,9 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
     linid_name_cosine = []
     linid_email_cosine = []
     linid_phone_cosine = []
+    linid_address_cosine = []
     linid_record_id = []
+
 
     tr = df_train[['record_id', 'linked_id']]
     for x in tqdm(range(df_test.shape[0])):
@@ -72,6 +75,7 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         linid_name_cosine.append([sim_name[x, t] for t in indices])
         linid_email_cosine.append([sim_email[x, t] for t in indices])
         linid_phone_cosine.append([sim_phone[x, t] for t in indices])
+        linid_address_cosine.append([sim_phone[x,t] for t in indices])
 
 
     """
@@ -121,6 +125,7 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
     df['name_cosine'] = linid_name_cosine
     df['email_cosine'] = linid_email_cosine
     df['phone_cosine'] = linid_phone_cosine
+    df['address_cosine'] = linid_address_cosine
     df['linked_id_idx'] = linid_idx
     #df['linked_id_idx'] = relevant_idx
 
@@ -141,16 +146,16 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
 
 def expand_df(df):
     df_list = []
-    for (q, pred, pred_rec, score, s_name, s_email, s_phone, idx) in tqdm(
+    for (q, pred, pred_rec, score, s_name, s_email, s_phone, s_addr,  idx) in tqdm(
             zip(df.queried_record_id, df.predicted_record_id, df.predicted_record_id_record, df.cosine_score,
-                df.name_cosine, df.email_cosine, df.phone_cosine, df.linked_id_idx)):
+                df.name_cosine, df.email_cosine, df.phone_cosine, df.address_cosine, df.linked_id_idx)):
         for x in range(len(pred)):
-            df_list.append((q, pred[x], pred_rec[x], score[x], s_name[x], s_email[x], s_phone[x], idx[x]))
+            df_list.append((q, pred[x], pred_rec[x], score[x], s_name[x], s_email[x], s_phone[x], s_addr[x],  idx[x]))
 
     # TODO da cambiare predicted_record_id in predicted_linked_id e 'predicted_record_id_record' in 'predicted_record_id'
     df_new = pd.DataFrame(df_list, columns=['queried_record_id', 'predicted_record_id', 'predicted_record_id_record',
                                             'cosine_score', 'name_cosine',
-                                            'email_cosine', 'phone_cosine', 'linked_id_idx',
+                                            'email_cosine', 'phone_cosine', 'address_cosine', 'linked_id_idx',
                                             ])
     return df_new
 
