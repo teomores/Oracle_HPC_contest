@@ -11,6 +11,9 @@ from features.target import target
 import os
 
 def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=False, save=False, path=""):
+
+    sim_path = os.path.join(path, 'similarities')
+
     if isValidation:
         #val_name = path.split("\\")[-1]   # Windows
         val_name = path.split("/")[-1]   # Mac
@@ -28,7 +31,6 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         #df_test = pd.read_csv('dataset/validation/test.csv', escapechar="\\")
 
         # TODO MORE: dividere per bene le similarità in base al validation set considerato
-        sim_path = os.path.join(path, 'similarities')
 
         sim_name = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_name_300k_{val_name}_2ngrams.npz'))
         sim_email = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_email_300k_{val_name}_2ngrams.npz'))
@@ -38,10 +40,10 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         #sim_name = load_npz('jaccard_tfidf_name_original.npz')
         #sim_email = load_npz('jaccard_tfidf_email_original.npz')
         #sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        sim_name = load_npz('jaccard_uncleaned_name_300k_original.npz')
-        sim_email = load_npz('jaccard_uncleaned_email_300k_original.npz')
-        sim_phone = load_npz('jaccard_uncleaned_phone_300k_original.npz')
-        sim_address = load_npz('jaccard_uncleaned_address_300k_original.npz')
+        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_original.npz'))
+        sim_email = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_email_300k_original.npz'))
+        sim_phone = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_phone_300k_original.npz'))
+        sim_address = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_address_300k_original.npz'))
         df_train = pd.read_csv('dataset/original/train.csv', escapechar="\\")
         df_test = pd.read_csv('dataset/original/test.csv', escapechar="\\")
 
