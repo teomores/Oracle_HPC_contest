@@ -28,3 +28,16 @@ for d in dir_path:
         val = adding_features(val, isValidation=True, path=path)
         save_path = os.path.join(path, "train_complete.csv")
         val.to_csv(save_path, index=False)
+
+path_original = os.path.join('dataset','original')
+if os.path.isfile(os.path.join(path_original, 'expanded', 'base_expanded_test.csv')):
+    print("Load base_expanded_test")
+    base_exp_test = pd.read_csv(os.path.join(path_original, 'expanded', 'base_expanded_test.csv'))
+    base_exp_test = adding_features(base_exp_test, isValidation=False, path=path_original)
+    save_path = os.path.join(path_original, 'test_complete.csv')
+    base_exp_test.to_csv(save_path, index=False)
+else:
+    base_exp_test = base_expanded_df(isValidation=False, save=True, path=path_original)
+    base_exp_test = adding_features(base_exp_test, isValidation=False, path=path_original)
+    save_path = os.path.join(path_original, 'test_complete.csv')
+    base_exp_test.to_csv(save_path, index=False)
