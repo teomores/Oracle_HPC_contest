@@ -26,7 +26,7 @@ def case_typo(isValidation, path=""):
     final_feature = feature[['record_id','case_typo']]
     print(final_feature)
     if isValidation:
-        file_path = os.path.join(path, "feature/case_type.csv")
+        file_path = os.path.join(path, "feature/case_typo.csv")
         #file_path = '../dataset/validation/feature/case_typo.csv'
     else:
         file_path = '../dataset/original/feature/case_typo.csv'

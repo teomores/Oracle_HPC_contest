@@ -8,13 +8,14 @@ from pathlib import Path
 from features.compute_editdistance import compute_editdistance
 from features.compute_jaro_winkler_distance import compute_jaro_distance
 from features.target import target
-
+import os
 
 def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=False, save=False, path=""):
     if isValidation:
-        val_name = path.split("/")[-1]
+        val_name = path.split("\\")[-1]
         train_path = os.path.join(path, 'train.csv')
         test_path = os.path.join(path, 'test.csv')
+        print(test_path)
         df_train = pd.read_csv(train_path, escapechar="\\")
         df_test = pd.read_csv(test_path, escapechar="\\")
 
@@ -27,10 +28,10 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         # TODO MORE: dividere per bene le similarità in base al validation set considerato
         sim_path = os.path.join(path, 'similarities')
 
-        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_validation.npz'))
-        sim_email = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_email_300k_validation.npz'))
-        sim_phone = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_phone_300k_validation.npz'))
-        sim_address = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_address_300k_validation.npz'))
+        sim_name = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_name_300k_{val_name}_2ngrams.npz'))
+        sim_email = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_email_300k_{val_name}_2ngrams.npz'))
+        sim_phone = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_phone_300k_{val_name}_2ngrams.npz'))
+        sim_address = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_address_300k_{val_name}_2ngrams.npz'))
     else:
         #sim_name = load_npz('jaccard_tfidf_name_original.npz')
         #sim_email = load_npz('jaccard_tfidf_email_original.npz')
@@ -124,7 +125,7 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
     if save:
         if isValidation:
             if not os.path.isdir(os.path.join(path, "expanded")):
-                os.makedirs(path, "expanded")
+                os.makedirs(os.path.join(path, "expanded"))
             save_path = os.path.join(path, "expanded/base_expanded_train.csv")
             df_new.to_csv(save_path, index=False)
         else:
@@ -167,7 +168,7 @@ def adding_features(df, isValidation=True, path=""):
         feat_dir = curr_dir.joinpath("dataset/original/feature/")
 
     if isValidation:
-        df['target'] = target(df)
+        df['target'] = target(df, path = path)
 
     case_typo = pd.read_csv( feat_dir.joinpath("case_typo.csv"))
     email_pop = pd.read_csv( feat_dir.joinpath("email_popularity.csv"))
@@ -181,7 +182,7 @@ def adding_features(df, isValidation=True, path=""):
 
     print(df.columns)
     # Edit Distance
-    df['editdistance'] = compute_editdistance(df, validation=isValidation)
+    df['editdistance'] = compute_editdistance(df, validation=isValidation, path=path)
 
     #Jaro-Winkler
     df = df.join(compute_jaro_distance(df, validation=isValidation, path=path))
