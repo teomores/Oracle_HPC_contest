@@ -71,11 +71,12 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         linid_.append(df['linked_id'].values)
         linid_idx.append(df.index)
         linid_record_id.append(df.record_id.values)
-        linid_score.append(np.sort(hybrid[x].data)[::-1][:k])
+        linid_score.append(np.sort(hybrid[x].data)[::-1][:k]) # Questo ha senso perché tanto gli indices sono sortati in base allo scores di hybrid
         linid_name_cosine.append([sim_name[x, t] for t in indices])
         linid_email_cosine.append([sim_email[x, t] for t in indices])
         linid_phone_cosine.append([sim_phone[x, t] for t in indices])
-        linid_address_cosine.append([sim_phone[x,t] for t in indices])
+        linid_address_cosine.append([sim_phone[x, t] for t in indices])
+
 
 
     """
@@ -138,7 +139,9 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
             save_path = os.path.join(path, "expanded/base_expanded_train.csv")
             df_new.to_csv(save_path, index=False)
         else:
-            df_new.to_csv("dataset/expanded/base_expanded_test.csv", index=False)
+            if not os.path.isdir((os.path.join(path, "expanded"))):
+                os.makedirs((os.path.join(path, "expanded")))
+            df_new.to_csv("dataset/original/expanded/base_expanded_test.csv", index=False)
 
     return df_new
 
