@@ -163,7 +163,7 @@ def expand_df(df):
     return df_new
 
 
-def adding_features(df, isValidation=True, path=""):
+def adding_features(df, isValidation=True, path="", incremental_train=None):
     """
 
     :param df: expanded dataset. Call it after execute base_expanded_df
@@ -194,10 +194,17 @@ def adding_features(df, isValidation=True, path=""):
 
     print(df.columns)
     # Edit Distance
-    df['editdistance'] = compute_editdistance(df, validation=isValidation, path=path)
+    if incremental_train is None:
+        df['editdistance'] = compute_editdistance(df, validation=isValidation, path=path)
+    else:
+        df['editdistance'] = compute_editdistance(df, validation=isValidation, path=path, train=incremental_train)
 
     #Jaro-Winkler
-    df = df.join(compute_jaro_distance(df, validation=isValidation, path=path))
+    if incremental_train is None:
+        df = df.join(compute_jaro_distance(df, validation=isValidation, path=path))
+    else:
+        df = df.join(compute_jaro_distance(df, validation=isValidation, path=path, train=incremental_train))
+
 
     df = df.merge(email_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
     print(df.columns)

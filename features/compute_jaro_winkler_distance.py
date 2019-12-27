@@ -4,19 +4,31 @@ from tqdm.auto import tqdm
 import py_stringmatching as sm
 import os
 
-def compute_jaro_distance(df_exp, validation=True, Winkler=True, columns=['name', 'address', 'phone', 'email'], path=""):
+def compute_jaro_distance(df_exp, validation=True, Winkler=True, columns=['name', 'address', 'phone', 'email'], path="", train=None):
     if validation:
         train_path = os.path.join(path, 'train.csv')
         test_path = os.path.join(path, 'test.csv')
-        df_train = pd.read_csv(train_path, escapechar="\\")
+        if train is None:
+            df_train = pd.read_csv(train_path, escapechar="\\")
+        else:
+            df_train = train
         df_test = pd.read_csv(test_path, escapechar="\\")
         #df_test = pd.read_csv("dataset/validation/test.csv", escapechar="\\")
         #df_train = pd.read_csv("dataset/validation/train.csv",escapechar="\\")
     else:
-        df_test = pd.read_csv("dataset/original/test.csv", escapechar="\\")
-        df_train = pd.read_csv("dataset/original/train.csv", escapechar="\\")
+        train_path = os.path.join(path, 'train.csv')
+        test_path = os.path.join(path, 'test.csv')
+        if train is None:
+            df_train = pd.read_csv(train_path, escapechar="\\")
+        else:
+            df_train = train
+        df_test = pd.read_csv(test_path, escapechar="\\")
+        #df_test = pd.read_csv("dataset/original/test.csv", escapechar="\\")
+        #df_train = pd.read_csv("dataset/original/train.csv", escapechar="\\")
 
-    df_train = df_train.sort_values(by='record_id').reset_index(drop=True)
+    if train is None:
+        df_train = df_train.sort_values(by='record_id').reset_index(drop=True)
+
     df_test = df_test.sort_values(by='record_id').reset_index(drop=True)
 
     for c in columns:
