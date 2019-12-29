@@ -192,7 +192,7 @@ def adding_features(df, isValidation=True, path="", incremental_train=None):
     phone_pop = pd.read_csv( feat_dir.joinpath("phone_popularity.csv"))
     name_length = pd.read_csv( feat_dir.joinpath("test_name_length.csv"))
 
-    print(df.columns)
+    #print(df.columns)
     # Edit Distance
     if incremental_train is None:
         df['editdistance'] = compute_editdistance(df, validation=isValidation, path=path)
@@ -207,22 +207,17 @@ def adding_features(df, isValidation=True, path="", incremental_train=None):
 
 
     df = df.merge(email_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
-    print(df.columns)
     df = df.merge(linked_id_pop, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id', axis=1).rename(
         columns={'popularity': 'linked_id_popularity'})
     df = df.merge(name_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id', axis=1)
-    print(df.columns)
     df = df.merge(nonnull_addr, how='left', left_on='predicted_record_id', right_on='linked_id')
-    print(df.columns)
     df = df.drop('linked_id', axis=1)
     df = df.merge(nonnull_email, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',
                                                                                                            axis=1)
     df = df.merge(nonnull_phone, how='left', left_on='predicted_record_id', right_on='linked_id').drop('linked_id',
                                                                                                            axis=1)
-    print(df.columns)
     df = df.merge(case_typo, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id',
                                                                                                            axis=1)
-    print(df.columns)
     df = df.merge(phone_pop, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id',
                                                                                                      axis=1)
     df = df.merge(name_length, how='left', left_on='queried_record_id', right_on='record_id').drop('record_id',
