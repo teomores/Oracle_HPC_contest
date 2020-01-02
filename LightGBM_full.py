@@ -7,7 +7,7 @@ train_1 = pd.read_csv("dataset/validation_2/train_complete.csv")
 train_2 = pd.read_csv("dataset/validation_3/train_complete.csv")
 val = pd.read_csv("dataset/validation/train_complete.csv")
 
-evaluation = True
+evaluation = False
 
 
 if evaluation:
@@ -21,7 +21,6 @@ else:
 group = train.groupby('queried_record_id').size().values
 
 params = {
-        'boosting_type':'gbdt',
         'num_leaves':31,
         'max_depth':-1,
         'learning_rate':0.1,
@@ -42,7 +41,7 @@ params = {
         'importance_type':'split'
 }
 
-ranker = lgb.LGBMRanker(params, device='gpu')
+ranker = lgb.LGBMRanker(**params, device='gpu')
 print('Start LGBM...')
 t1 = time.time()
 
@@ -97,4 +96,3 @@ else:
 
     #df_predictions.predicted_record_id = new_col
     df_predictions.to_csv('lgb_predictions_full.csv', index=False)
-
