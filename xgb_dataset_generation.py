@@ -33,7 +33,7 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
 
         # TODO MORE: dividere per bene le similarità in base al validation set considerato
 
-        sim_name = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_name_300k_{val_name}_2ngrams.npz'))
+        sim_name = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_name_300k_{val_name}_3ngrams.npz'))
         sim_email = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_email_300k_{val_name}_2ngrams.npz'))
         sim_phone = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_phone_300k_{val_name}_2ngrams.npz'))
         sim_address = load_npz(os.path.join(sim_path, f'jaccard_uncleaned_address_300k_{val_name}_2ngrams.npz'))
@@ -41,7 +41,7 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         #sim_name = load_npz('jaccard_tfidf_name_original.npz')
         #sim_email = load_npz('jaccard_tfidf_email_original.npz')
         #sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_original_2ngrams.npz'))
+        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_original_3ngrams.npz'))
         sim_email = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_email_300k_original_2ngrams.npz'))
         sim_phone = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_phone_300k_original_2ngrams.npz'))
         sim_address = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_address_300k_original_2ngrams.npz'))

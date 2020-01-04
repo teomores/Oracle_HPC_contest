@@ -47,4 +47,4 @@ else:
 if not os.path.isdir(f"../dataset/{args.split}/similarities"):
     os.makedirs(f"../dataset/{args.split}/similarities")
 
-save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_email_{args.split}_2ngrams_{args.mode}.npz', cosmatrixxx.tocsr())
+save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_email_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())

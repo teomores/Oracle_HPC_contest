@@ -38,7 +38,7 @@ def compute_f1_score(precision, recall):
     return F1
 
 # Get LightGBM predictions
-score_path = "lgb_predictions_full.csv"
+score_path = "lgb_predictions_3ngramsname_2glialtri.csv"
 s = pd.read_csv(score_path)
 
 s.ordered_scores = [eval(x) for x in s.ordered_scores]
@@ -80,7 +80,3 @@ print(f'Recall@10: {recall_rest["AveragePrecision"]}')
 
 f1_rest = compute_f1_score(precision_rest['AveragePrecision'], recall_rest['AverageRecall'])
 print(f'F1-score: {f1_rest}')
-
-
-
-
