@@ -19,6 +19,11 @@ parser.add_argument("-s","--split",
                     choices=['original','validation','validation_2','validation_3'],
                     type=str,
                     required=True)
+parser.add_argument("-m","--mode",
+                    help="The mode to run.",
+                    choices=['thresh','knn'],
+                    type=str,
+                    required=True)
 args = parser.parse_args()
 # first load the data
 df_train = pd.read_csv(f"../dataset/{args.split}/train.csv", escapechar="\\")
@@ -33,9 +38,13 @@ vectorizer = CountVectorizer(preprocessor = remove_spaces, analyzer=remove_space
 X = vectorizer.fit_transform(corpus)
 X_train = X[:df_train.shape[0],:]
 X_test = X[df_train.shape[0]:,:]
-cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
+if args.mode == 'thresh':
+    cosmatrixxx = sim.jaccard(X_test, X_train.T, k=2000)
+    cosmatrixxx.data[cosmatrixxx.data <= 0.3] = 0
+else:
+    cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
 
 if not os.path.isdir(f"../dataset/{args.split}/similarities"):
     os.makedirs(f"../dataset/{args.split}/similarities")
 
-save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_email_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())
+save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_email_{args.split}_2ngrams_{args.mode}.npz', cosmatrixxx.tocsr())

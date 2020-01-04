@@ -7,7 +7,7 @@ import argparse
 import re
 import os
 
-def remove_spaces(s, n=3):
+def remove_spaces(s, n=2):
     s = re.sub(' +',' ',s).strip()
     ngrams = zip(*[s[i:] for i in range(n)])
     return [''.join(ngram) for ngram in ngrams]
@@ -15,8 +15,13 @@ def remove_spaces(s, n=3):
 #setup parser
 parser = argparse.ArgumentParser()
 parser.add_argument("-s","--split",
-                    help="The dataset split to use",
+                    help="The dataset split to use.",
                     choices=['original','validation','validation_2','validation_3'],
+                    type=str,
+                    required=True)
+parser.add_argument("-m","--mode",
+                    help="The mode to run.",
+                    choices=['thresh','knn'],
                     type=str,
                     required=True)
 args = parser.parse_args()
@@ -33,10 +38,13 @@ vectorizer = CountVectorizer(preprocessor = remove_spaces, analyzer=remove_space
 X = vectorizer.fit_transform(corpus)
 X_train = X[:df_train.shape[0],:]
 X_test = X[df_train.shape[0]:,:]
-cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
-
+if args.mode == 'thresh':
+    cosmatrixxx = sim.jaccard(X_test, X_train.T, k=2000)
+    cosmatrixxx.data[cosmatrixxx.data <= 0.5] = 0
+else:
+    cosmatrixxx = sim.jaccard(X_test, X_train.T, k=300)
 
 if not os.path.isdir(f"../dataset/{args.split}/similarities"):
     os.makedirs(f"../dataset/{args.split}/similarities")
 
-save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_name_300k_{args.split}_2ngrams.npz', cosmatrixxx.tocsr())
+save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_name_{args.split}_2ngrams_{args.mode}.npz', cosmatrixxx.tocsr())

@@ -10,7 +10,7 @@ s1 = load_npz('dataset/original/similarities/jaccard_uncleaned_name_300k_origina
 s2 = load_npz('dataset/original/similarities/jaccard_uncleaned_email_300k_original_2ngrams.npz')
 s3 = load_npz('dataset/original/similarities/jaccard_uncleaned_phone_300k_original_2ngrams.npz')
 s4 = load_npz('dataset/original/similarities/jaccard_uncleaned_address_300k_original_2ngrams.npz')
-#s5 = load_npz('jaccard_uncleaned_name_300k_original.npz')
+#s5 = load_npz('similarity_cosine_name_300.npz')
 
 # massimo con name+0.05*email+0.2*phone+0.1*address
 sss = s1 + 0.2 * s2 + 0.2 * s3 + 0.2 * s4
