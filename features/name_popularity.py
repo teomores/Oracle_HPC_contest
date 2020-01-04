@@ -47,8 +47,7 @@ def name_popularity(isValidation, path=""):
         final_feature.to_csv('../dataset/original/feature/name_popularity.csv', index = False)
 
 
-
+name_popularity(True, path="../dataset/validation")
 name_popularity(True, path="../dataset/validation_2")
 name_popularity(True, path="../dataset/validation_3")
-
-#name_popularity(False)
+name_popularity(False)

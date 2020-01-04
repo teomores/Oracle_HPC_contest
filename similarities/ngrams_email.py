@@ -7,7 +7,7 @@ import argparse
 import re
 import os
 
-def remove_spaces(s, n=3):
+def remove_spaces(s, n=2):
     s = re.sub(' +',' ',s).strip()
     ngrams = zip(*[s[i:] for i in range(n)])
     return [''.join(ngram) for ngram in ngrams]

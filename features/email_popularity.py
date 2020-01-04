@@ -46,8 +46,7 @@ def email_popularity(isValidation, path=""):
 
 
 
-
+email_popularity(True, path="../dataset/validation")
 email_popularity(True, path="../dataset/validation_2")
 email_popularity(True, path="../dataset/validation_3")
-
 email_popularity(False)

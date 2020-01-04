@@ -53,8 +53,7 @@ def number_of_non_null_address(isValidation, path=""):
         feature.to_csv('../dataset/original/feature/number_of_non_null_address.csv', index = False)
 
 
-
+number_of_non_null_address(True, path="../dataset/validation")
 number_of_non_null_address(True, path="../dataset/validation_2")
 number_of_non_null_address(True, path="../dataset/validation_3")
-
-#number_of_non_null_address(False)
+number_of_non_null_address(False)

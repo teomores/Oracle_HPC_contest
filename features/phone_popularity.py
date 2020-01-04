@@ -46,8 +46,7 @@ def phone_popularity(isValidation, path=""):
     else:
         final_feature.to_csv('../dataset/original/feature/phone_popularity.csv', index=False)
 
-
+phone_popularity(True, path="../dataset/validation")
 phone_popularity(True, path="../dataset/validation_2")
 phone_popularity(True, path="../dataset/validation_3")
-
-#phone_popularity(False)
+phone_popularity(False)
