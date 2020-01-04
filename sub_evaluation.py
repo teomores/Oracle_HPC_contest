@@ -45,7 +45,10 @@ s.ordered_scores = [eval(x) for x in s.ordered_scores]
 s.ordered_linked = [eval(x) for x in s.ordered_linked]
 s.ordered_record = [eval(x) for x in s.ordered_record]
 
-sub = expand_df(s)
+s['top10_scores'] = s.ordered_scores.apply(lambda x: x[:10])
+s['top10_linked'] = s.ordered_linked.apply(lambda x: x[:10])
+s['top10_record'] = s.ordered_record.apply(lambda x: x[:10])
+
 
 # Load train and test
 train = pd.read_csv("dataset/original/train.csv", escapechar="\\")
@@ -57,6 +60,10 @@ test['linked_id'] = test.linked_id.apply(lambda x: x[0])
 test.linked_id = test.linked_id.astype(int)
 
 # Top10 Submission
+renaming_dict = {'top10_scores':'ordered_scores', 'top10_linked':'ordered_linked', 'top10_record':'ordered_record'}
+s_top10 = s[['queried_record_id', 'top10_scores', 'top10_linked', 'top10_record']].rename(columns=renaming_dict)
+sub = expand_df(s_top10)
+
 print("Top10 Submission:")
 precision = precision_at_k(sub[['queried_record_id', 'predicted_record_id']], train.set_index("record_id"), test.set_index("record_id"))
 print(f'Precision@10: {precision["AveragePrecision"]}')
