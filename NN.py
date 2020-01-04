@@ -22,32 +22,20 @@ if gpus:
     print(e)
 
 
-# print("Loading the first validation...")
-# val1_exp = pd.read_csv("dataset/validation/train_complete.csv")
-# print("Loading the second validation...")
-# val2_exp = pd.read_csv("dataset/validation_2/train_complete.csv")
-# print("Loading the third validation...")
-# val3_exp = pd.read_csv("dataset/validation_3/train_complete.csv")
-# print('Concatenatin...')
-# train_complete = pd.concat([val1_exp, val2_exp, val3_exp])
-
-train_complete = pd.read_csv("train_complete_nn.csv")
-
+print("Loading the first validation...")
+val1_exp = pd.read_csv("dataset/validation/train_complete.csv")
+print("Loading the second validation...")
+val2_exp = pd.read_csv("dataset/validation_2/train_complete.csv")
+print("Loading the third validation...")
+val3_exp = pd.read_csv("dataset/validation_3/train_complete.csv")
+print('Concatenatin...')
+train_complete = pd.concat([val1_exp, val2_exp, val3_exp])
 
 y = train_complete['target']
 
 X = train_complete.drop(['target'], axis=1).iloc[:,3:]
 print('Building model')
-# QUESTI FANNO 54923
-# model = Sequential()
-# model.add(Dense(32, input_dim=22, activation='relu'))
-# model.add(Dense(8, activation='relu'))
-# model.add(Dense(1, activation='sigmoid'))
-#
-# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-#
-# es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-# model.fit(X, y, validation_split=0.3, epochs=100, batch_size=300, callbacks=[es])
+
 METRICS = [
       tf.keras.metrics.TruePositives(name='tp'),
       tf.keras.metrics.FalsePositives(name='fp'),
@@ -59,28 +47,16 @@ METRICS = [
       tf.keras.metrics.AUC(name='auc'),
 ]
 
+# QUESTI FANNO 54923
 model = Sequential()
 model.add(Dense(32, input_dim=22, activation='relu'))
 model.add(Dense(8, activation='relu'))
-model.add(Dropout(0.5))
+model.add(Dense(1, activation='sigmoid'))
 
-output_bias = tf.keras.initializers.Constant(0.03)
-model.add(Dense(1, activation='sigmoid',  bias_initializer=output_bias))
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=METRICS)
 
-weight_for_0 = (1 / 3)*(100)/2.0
-weight_for_1 = (1 / 97)*(100)/2.0
-
-class_weight = {0: weight_for_0, 1: weight_for_1}
-
-model.compile(loss='binary_crossentropy',
-                optimizer=tf.keras.optimizers.Adam(lr=1e-3),
-                metrics=METRICS,
-                #mode='max',
-                )
-
-print('Fitting')
-es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-model.fit(X, y, validation_split=0.3, epochs=100, batch_size=1000, callbacks=[es], class_weight=class_weight)
+es = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+model.fit(X, y, validation_split=0.3, epochs=100, batch_size=300, callbacks=[es])
 
 test_complete = pd.read_csv('dataset/original/test_complete.csv')
 
@@ -115,6 +91,6 @@ def reorder_preds(preds):
         return ordered_lin, ordered_score, ordered_record
 
 df_predictions['ordered_linked'], df_predictions['ordered_scores'], df_predictions['ordered_record'] = reorder_preds(df_predictions.rec_pred.values)
-if os.path.exists('scores_nn_prova.csv'):
-    os.remove('scores_nn_prova.csv')
-df_predictions.to_csv('scores_nn_prova.csv', index=False)
+if os.path.exists('scores_nn.csv'):
+    os.remove('scores_nn.csv')
+df_predictions.to_csv('scores_nn.csv', index=False)
