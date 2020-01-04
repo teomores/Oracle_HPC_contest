@@ -5,6 +5,9 @@ import os
 train = pd.read_csv("dataset/original/train.csv", escapechar="\\")
 
 X_train, X_val, y_train, y_val = train_test_split(train, train['linked_id'] , test_size=0.33, random_state=42)
+if not os.path.isdir("dataset/validation"):
+    os.makedirs("dataset/validation")
+    os.makedirs("dataset/validation/feature")
 X_train.to_csv('dataset/validation/train.csv', index=False)
 X_val.to_csv('dataset/validation/test.csv', index=False)
 
