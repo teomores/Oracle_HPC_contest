@@ -34,8 +34,7 @@ def linked_id_popularity(isValidation, path=""):
         feature.to_csv('../dataset/original/feature/linked_id_popularity.csv', index = False)
 
 
-
+linked_id_popularity(True, path="../dataset/validation")
 linked_id_popularity(True, path="../dataset/validation_2")
 linked_id_popularity(True, path="../dataset/validation_3")
-
-#linked_id_popularity(False)
+linked_id_popularity(False)

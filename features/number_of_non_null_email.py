@@ -51,7 +51,7 @@ def number_of_non_null_email(isValidation, path=""):
     else:
         feature.to_csv('../dataset/original/feature/number_of_non_null_email.csv', index = False)
 
+number_of_non_null_email(True, path="../dataset/validation")
 number_of_non_null_email(True, path="../dataset/validation_2")
 number_of_non_null_email(True, path="../dataset/validation_3")
-
-#number_of_non_null_email(False)
+number_of_non_null_email(False)

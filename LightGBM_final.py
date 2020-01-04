@@ -14,9 +14,13 @@ if evaluation:
     train = pd.concat([train_1, train_2])
     eval_group = val.groupby('queried_record_id').size().values
 else:
-    train = pd.concat([train_1, train_2, val])
+    #train = pd.concat([train_1, train_2, val])
+    train = pd.read_csv("train_complete_nn.csv")
     test = pd.read_csv("dataset/original/test_complete.csv")
-
+    # change name of similarities
+    r = {'cosine_score': 'hybrid_score', 'name_cosine':'name_jaccard', 'email_cosine':'email_jaccard', 'phone_cosine':'phone_jaccard'}
+    train = train.rename(columns=r)
+    test = test.rename(columns=r)
 
 group = train.groupby('queried_record_id').size().values
 
@@ -56,7 +60,7 @@ if evaluation:
 
 else:
     ranker.fit(train.drop(
-        ['queried_record_id', 'target', 'predicted_record_id', 'predicted_record_id_record', 'linked_id_idx'], axis=1),
+        ['queried_record_id', 'target', 'predicted_record_id', 'predicted_record_id_record'], axis=1),
                train['target'], group=group)
 
     t2 = time.time()
@@ -88,11 +92,4 @@ else:
         return ordered_lin, ordered_score, ordered_record
 
     df_predictions['ordered_linked'], df_predictions['ordered_scores'], df_predictions['ordered_record'] = reorder_preds(df_predictions.rec_pred.values)
-    #df_predictions = df_predictions[['queried_record_id', 'ordered_preds']].rename(columns={'ordered_preds': 'predicted_record_id'})
-
-    #new_col = []
-    #for t in tqdm(df_predictions.predicted_record_id):
-    #    new_col.append(' '.join([str(x) for x in t]))
-
-    #df_predictions.predicted_record_id = new_col
     df_predictions.to_csv('lgb_predictions.csv', index=False)

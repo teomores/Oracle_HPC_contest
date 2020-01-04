@@ -7,7 +7,7 @@ import argparse
 import re
 import os
 
-def remove_spaces(s, n=2):
+def remove_spaces(s, n=3):
     s = re.sub(' +',' ',s).strip()
     ngrams = zip(*[s[i:] for i in range(n)])
     return [''.join(ngram) for ngram in ngrams]
@@ -47,4 +47,4 @@ else:
 if not os.path.isdir(f"../dataset/{args.split}/similarities"):
     os.makedirs(f"../dataset/{args.split}/similarities")
 
-save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_name_{args.split}_2ngrams_{args.mode}.npz', cosmatrixxx.tocsr())
+save_npz(f'../dataset/{args.split}/similarities/jaccard_uncleaned_name_{args.split}_3ngrams_{args.mode}.npz', cosmatrixxx.tocsr())

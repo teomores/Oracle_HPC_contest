@@ -45,7 +45,7 @@ def check_string_words(string):
             return 1
     return 0
 
+case_typo(True, path="../dataset/validation")
 case_typo(True, path="../dataset/validation_2")
 case_typo(True, path="../dataset/validation_3")
-
-#case_typo(False)
+case_typo(False)

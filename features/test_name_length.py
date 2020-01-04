@@ -29,8 +29,7 @@ def test_name_length(isValidation, path=""):
     else:
         feature.to_csv('../dataset/original/feature/test_name_length.csv', index=False)
 
-
+test_name_length(True, path="../dataset/validation")
 test_name_length(True, path="../dataset/validation_2")
 test_name_length(True, path="../dataset/validation_3")
-
-#test_name_length(False)
+test_name_length(False)
