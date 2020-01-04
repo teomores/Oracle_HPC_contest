@@ -36,3 +36,12 @@ The NN needs to compute the dataframe of LightGBM through the `create_expanded_d
 foo@bar:~$ <PATH-TO-THE-REPO>python NN.py
 ```
 You can add or remove layers or play with the parameters. This will output a scores_nn.csv file from which you can extract the prediction through the `sub_from_predictions.py` script.
+
+
+## Notebooks
+### Classifier
+The classifier is used as a-posteriori method to detect if a test record has a reference in the training set. It uses LightGBMClassifier to perform the work and it is based on the scores provided by the main model pipeline (both Hybrid and LightGBMRanker)
+
+### Online Learning
+Some of test records do not appear in train-set and correspond to duplicated user within the test set. In a real scenario, it could be useful to add to the training-set the test records already evaluated. 
+In this way if a new record B need to be evaluated and it refers to an entity A discovered in previous evaluations, the new element can be correctly reconducted to the entity A.
