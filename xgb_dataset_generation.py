@@ -10,6 +10,7 @@ from features.compute_jaro_winkler_distance import compute_jaro_distance
 from features.target import target
 import os
 import time
+from cython_files.fast_extraction import extract_values_2
 
 def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=False, save=False, path=""):
 
@@ -41,7 +42,7 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
         #sim_name = load_npz('jaccard_tfidf_name_original.npz')
         #sim_email = load_npz('jaccard_tfidf_email_original.npz')
         #sim_phone = load_npz('jaccard_tfidf_phone_original.npz')
-        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_original_3ngrams.npz'))
+        sim_name = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_name_300k_original_2ngrams.npz'))
         sim_email = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_email_300k_original_2ngrams.npz'))
         sim_phone = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_phone_300k_original_2ngrams.npz'))
         sim_address = load_npz(os.path.join(sim_path, 'jaccard_uncleaned_address_300k_original_2ngrams.npz'))
@@ -62,21 +63,33 @@ def base_expanded_df(alpha = 0.2, beta = 0.2, gamma = 0.2, k = 50, isValidation=
     linid_address_cosine = []
     linid_record_id = []
 
-
+    print('Start Extraction')
     tr = df_train[['record_id', 'linked_id']]
     for x in tqdm(range(df_test.shape[0])):
         #df = df_train.loc[hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]],:][:k]
         indices = hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]][:k]
         df = tr.loc[indices, :][:k]
         linid_.append(df['linked_id'].values)
-        linid_idx.append(df.index)
+        linid_idx.append(indices)
         linid_record_id.append(df.record_id.values)
-        linid_score.append(np.sort(hybrid[x].data)[::-1][:k]) # Questo ha senso perché tanto gli indices sono sortati in base allo scores di hybrid
-        linid_name_cosine.append([sim_name[x, t] for t in indices])
-        linid_email_cosine.append([sim_email[x, t] for t in indices])
-        linid_phone_cosine.append([sim_phone[x, t] for t in indices])
-        linid_address_cosine.append([sim_phone[x, t] for t in indices])
+        #linid_score.append(np.sort(hybrid[x].data)[::-1][:k]) # Questo ha senso perché tanto gli indices sono sortati in base allo scores di hybrid
+        #linid_name_cosine.append([sim_name[x, t] for t in indices])
+        #linid_email_cosine.append([sim_email[x, t] for t in indices])
+        #linid_phone_cosine.append([sim_phone[x, t] for t in indices])
+        #linid_address_cosine.append([sim_phone[x, t] for t in indices])
 
+    # Fast Cython Extraction
+    print('Extraction with Cython function')
+    linid_score = extract_values_2(linid_idx, k, hybrid.data, hybrid.indices, hybrid.indptr).tolist()
+    print('Hybrid Extracted')
+    linid_name_cosine = extract_values_2(linid_idx, k, sim_name.data, sim_name.indices, sim_name.indptr).tolist()
+    print('Name Extracted')
+    linid_email_cosine = extract_values_2(linid_idx, k, sim_email.data, sim_email.indices, sim_email.indptr).tolist()
+    print('Email Extracted')
+    linid_phone_cosine = extract_values_2(linid_idx, k, sim_phone.data, sim_phone.indices, sim_phone.indptr).tolist()
+    print('Phone Extracted')
+    linid_address_cosine = extract_values_2(linid_idx, k, sim_address.data, sim_address.indices, sim_address.indptr).tolist()
+    print('Address Extracted')
 
 
     """
@@ -230,3 +243,91 @@ def adding_features(df, isValidation=True, path="", incremental_train=None):
     df['null_phone'] = df.null_phone.astype(int)
 
     return df
+
+
+df = base_expanded_df(path="dataset/original")
+
+
+
+
+
+
+
+"""
+# Cython code to speed up creation
+
+%%cython
+import numpy as np
+from tqdm import tqdm_notebook as tqdm
+
+cdef list get_inorder_sliced(int[:] tmp_idxs, int[:] sliced, long[:] available_idxs):
+    cdef dict idxs_dict
+    cdef list tuple_sliced
+    
+    idxs_dict = {k:v for v,k in enumerate(tmp_idxs)}
+    tuple_sliced = [( idxs_dict[sliced[i]] , i)   for i in available_idxs]
+    tuple_sliced.sort(key=lambda tup: tup[0])
+    tuple_sliced = [x[1] for x in tuple_sliced]
+    return tuple_sliced
+    
+
+cpdef extract_values_2(list idxs, int k, float[:] data, int[:] indices, int[:] indptr):
+    
+    cdef Py_ssize_t x_idxs = len(idxs)
+    cdef int x
+    cdef int t
+    cdef int indptr_start
+    cdef int indptr_end
+    cdef float[:] row_data
+    
+    cdef long[:] available_idxs
+    cdef list ordered_available
+            
+    res = np.zeros((x_idxs, k), dtype=float)
+    cdef double[:, :] res_view = res
+    
+    for x in tqdm(range(x_idxs)):
+        indptr_start = indptr[x]
+        indptr_end = indptr[x+1]
+        
+    
+        available_idxs = np.where(np.isin(indices[indptr_start : indptr_end], idxs[x]))[0]
+    
+        ordered_available = get_inorder_sliced(idxs[x], indices[indptr_start : indptr_end], available_idxs)
+    
+        row_data = data[indptr_start:indptr_end]
+        for t in range(len(ordered_available)):
+            res_view[x, t] = row_data[ordered_available[t]] 
+    
+    return res
+
+
+
+
+linid_ = []
+linid_idx = []
+linid_score = []
+linid_name_cosine = []
+linid_email_cosine = []
+linid_phone_cosine = []
+linid_address_cosine = []
+linid_record_id = []
+k=50
+
+tr = df_train[['record_id', 'linked_id']]
+for x in tqdm(range(df_test.shape[0])):
+    #df = df_train.loc[hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]],:][:k]
+    indices = hybrid[x].nonzero()[1][hybrid[x].data.argsort()[::-1]][:k]
+    df = tr.loc[indices, :][:k]
+    linid_.append(df['linked_id'].values)
+    linid_idx.append(indices)    # TODO CAMBIATO QUI
+    linid_record_id.append(df.record_id.values)
+    linid_score.append(np.sort(hybrid[x].data)[::-1][:k]) # Questo ha senso perché tanto gli indices sono sortati in base allo scores di hybrid
+    linid_name_cosine.append([sim_name[x, t] for t in indices])
+
+a = extract_values_2(linid_idx, 50, sim_name.data, sim_name.indices, sim_name.indptr)
+b = extract_values_2(linid_idx, 50, sim_email.data, sim_email.indices, sim_email.indptr)
+c = extract_values_2(linid_idx, 50, sim_phone.data, sim_phone.indices, sim_phone.indptr)
+d = extract_values_2(linid_idx, 50, sim_address.data, sim_address.indices, sim_address.indptr)
+
+"""
