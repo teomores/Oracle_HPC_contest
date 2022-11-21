@@ -7,7 +7,7 @@ tqdm==4.31.1
 xgboost==0.90
 numpy==1.21.0
 similaripy==0.1.1
-tensorflow_gpu==2.7.2
+tensorflow_gpu==2.9.3
 pandas==0.24.1
 matplotlib==3.0.3
 psutil==5.6.7
